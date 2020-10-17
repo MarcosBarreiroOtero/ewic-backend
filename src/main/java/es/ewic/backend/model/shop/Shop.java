@@ -34,7 +34,10 @@ public class Shop implements Serializable {
 
 	private int idShop;
 	private String name;
+	private float latitude;
+	private float longitude;
 	private String location;
+	private int maxCapacity;
 	private ShopType type;
 
 	private Seller seller;
@@ -43,16 +46,23 @@ public class Shop implements Serializable {
 		// empty constructor
 	}
 
-	public Shop(String name, String location, ShopType type, Seller seller) {
+	public Shop(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
+			Seller seller) {
 		this.name = name;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.location = location;
+		this.maxCapacity = maxCapacity;
 		this.type = type;
 		this.seller = seller;
 	}
 
 	public Shop(ShopDetails details, Seller seller) {
 		this.name = details.getName();
+		this.longitude = details.getLongitude();
+		this.latitude = details.getLatitude();
 		this.location = details.getLocation();
+		this.maxCapacity = details.getMaxCapacity();
 		this.type = details.getType();
 		this.seller = seller;
 	}
@@ -75,12 +85,36 @@ public class Shop implements Serializable {
 		this.name = name;
 	}
 
+	public float getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+
+	public float getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
+	}
+
 	public String getLocation() {
 		return location;
 	}
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public int getMaxCapacity() {
+		return maxCapacity;
+	}
+
+	public void setMaxCapacity(int maxCapacity) {
+		this.maxCapacity = maxCapacity;
 	}
 
 	public ShopType getType() {

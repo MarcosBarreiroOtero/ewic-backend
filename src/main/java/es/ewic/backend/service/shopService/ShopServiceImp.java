@@ -6,8 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.ShopDao;
+import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 
 @Service("shopService")
 @Transactional
@@ -23,13 +25,21 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
-	public Shop saveOrUpdateShop(Shop shop) throws DuplicateInstanceException {
+	public Shop saveOrUpdateShop(Shop shop) throws DuplicateInstanceException, NoAuthorizedException {
+
+		if (shop.getMaxCapacity() <= 0) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.MAX_CAPACITY_INVALID,
+					Shop.class.getSimpleName());
+		}
 
 		try {
 			Shop s = shopDao.find(shop.getIdShop());
 			checkShopDuplicate(shop);
 
 			s.setName(shop.getName());
+			s.setLatitude(shop.getLatitude());
+			s.setLongitude(shop.getLongitude());
+			s.setMaxCapacity(shop.getMaxCapacity());
 			s.setLocation(shop.getLocation());
 			s.setType(shop.getType());
 
