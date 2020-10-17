@@ -15,9 +15,9 @@ propiedades.
 ## Modo de uso
 
 1. Descargar el código
-2. Ejecutar el script de creación de la base de datos situado en /doc/Create.sql. Realizar está operación solo la primera vez que se lanza la aplicación ya que eliminar los datos guardados anteriormente.
+2. Ejecutar el script de creación de la base de datos situado en /doc/initializeDb.sql. Realizar está operación solo la primera vez que se lanza la aplicación ya que eliminar los datos guardados anteriormente.
 
-        mysql -uewic -pewic -Dewic < Create.sql
+        mysql -uewic -pewic -Dewic < initializeDb.sql
         
 3. Lanzar el servidor de tomca en el puerto 8080 que expone la API REST
 
