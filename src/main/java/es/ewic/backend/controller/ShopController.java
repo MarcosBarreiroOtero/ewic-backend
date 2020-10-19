@@ -1,5 +1,8 @@
 package es.ewic.backend.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,6 +34,14 @@ public class ShopController {
 	private ShopService shopService;
 	@Autowired
 	private SellerService sellerService;
+
+	private List<ShopDetails> shopsToShopDetails(List<Shop> shops) {
+		List<ShopDetails> shopDetails = new ArrayList<ShopDetails>();
+		for (Shop shop : shops) {
+			shopDetails.add(new ShopDetails(shop));
+		}
+		return shopDetails;
+	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopDetails registerShop(@RequestBody ShopDetails shopDetails) {
@@ -76,5 +88,15 @@ public class ShopController {
 	@GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopType[] getShopTypes() {
 		return ShopType.values();
+	}
+
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ShopDetails> getShopsByFilters(@RequestParam(required = false) Float latitude,
+			@RequestParam(required = false) Float longitude, @RequestParam(required = false) String name,
+			@RequestParam(required = false) ShopType shopType) {
+
+		List<Shop> shops = shopService.getShopsByFilters(name, shopType, latitude, longitude);
+		return shopsToShopDetails(shops);
+
 	}
 }
