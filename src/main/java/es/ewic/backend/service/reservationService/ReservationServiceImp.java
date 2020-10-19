@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import es.ewic.backend.model.reservation.Reservation;
 import es.ewic.backend.model.reservation.ReservationDao;
 import es.ewic.backend.modelutil.DateUtils;
-import es.ewic.backend.modelutil.NoAutorizedOperationsNames;
+import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
@@ -38,7 +38,7 @@ public class ReservationServiceImp implements ReservationService {
 
 			if (reservation.getShop().getIdShop() != rsv.getShop().getIdShop()
 					|| reservation.getClient().getIdClient() != rsv.getClient().getIdClient()) {
-				throw new NoAuthorizedException(NoAutorizedOperationsNames.CHANGE_CLIENT_OR_SHOP,
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.CHANGE_CLIENT_OR_SHOP,
 						Reservation.class.getSimpleName());
 			}
 
@@ -46,7 +46,7 @@ public class ReservationServiceImp implements ReservationService {
 				checkReservationDuplicate(reservation);
 			}
 			if (now.after(reservation.getDate())) {
-				throw new NoAuthorizedException(NoAutorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
 						Reservation.class.getSimpleName());
 			}
 
@@ -58,7 +58,7 @@ public class ReservationServiceImp implements ReservationService {
 			checkReservationDuplicate(reservation);
 
 			if (now.after(reservation.getDate())) {
-				throw new NoAuthorizedException(NoAutorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
 						Reservation.class.getSimpleName());
 			}
 			reservationDao.save(reservation);

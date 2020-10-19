@@ -43,11 +43,9 @@ public class ClientController {
 
 		try {
 			Client c = clientService.getClientByIdGoogleLogin(idGoogleLogin);
-			c.setFirstName(client.getFirstName());
-			c.setLastName(client.getLastName());
-			c.setEmail(client.getEmail());
-			clientService.saveOrUpdateClient(c);
-			return c;
+			client.setIdClient(c.getIdClient());
+			clientService.saveOrUpdateClient(client);
+			return client;
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (DuplicateInstanceException e) {
