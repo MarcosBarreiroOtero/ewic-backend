@@ -2,6 +2,7 @@ package es.ewic.backend.modelutil;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class DateUtils {
@@ -51,6 +52,20 @@ public class DateUtils {
 				&& date1.get(Calendar.MONTH) == date2.get(Calendar.MONTH)
 				&& date1.get(Calendar.DATE) == date2.get(Calendar.DATE);
 		return isEqual;
+	}
+
+	/**
+	 * Method to calculate minutes of difference between two dates
+	 * 
+	 * @param dateFrom
+	 * @param dateTo
+	 * 
+	 * @return the difference in minutes
+	 */
+	public static long getMinutesDifference(Calendar dateFrom, Calendar dateTo) {
+		Date initDate = dateFrom.getTime();
+		Date endDate = dateTo.getTime();
+		return (endDate.getTime() - initDate.getTime()) / 1000 / 60;
 	}
 
 }

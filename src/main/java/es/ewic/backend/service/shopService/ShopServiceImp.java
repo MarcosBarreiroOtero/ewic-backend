@@ -1,15 +1,20 @@
 package es.ewic.backend.service.shopService;
 
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.ewic.backend.model.entry.Entry;
+import es.ewic.backend.model.entry.EntryDao;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.model.shop.ShopDao;
+import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
@@ -21,6 +26,8 @@ public class ShopServiceImp implements ShopService {
 
 	@Autowired
 	private ShopDao shopDao;
+	@Autowired
+	private EntryDao entryDao;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -94,6 +101,39 @@ public class ShopServiceImp implements ShopService {
 		float dist = (float) (earthRadius * c);
 
 		return dist;
+	}
+
+	@Override
+	public Entry registerEntry(Entry entry) throws DuplicateInstanceException {
+		try {
+			entryDao.find(entry.getIdEntry());
+			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
+		} catch (InstanceNotFoundException e) {
+			entryDao.save(entry);
+			return entry;
+		}
+	}
+
+	@Override
+	public Entry registerExit(int idEntry) throws InstanceNotFoundException, NoAuthorizedException {
+		Entry e = entryDao.find(idEntry);
+
+		if (e.getEnd() != null) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.EXIT_ALREADY_REGISTERED,
+					Entry.class.getSimpleName());
+		}
+
+		Calendar now = Calendar.getInstance();
+		e.setEnd(now);
+
+		Calendar start = (Calendar) e.getStart().clone();
+		System.out.println(start.getTimeZone());
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		start.setTimeZone(tz);
+		System.out.println("Entrada :" + DateUtils.sdfLong.format(start.getTime()));
+		long duration = DateUtils.getMinutesDifference(start, now);
+		e.setDuration(duration);
+		return e;
 	}
 
 }
