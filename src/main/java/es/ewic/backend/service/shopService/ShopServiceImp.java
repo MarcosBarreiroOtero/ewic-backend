@@ -3,7 +3,6 @@ package es.ewic.backend.service.shopService;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -104,7 +103,17 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
-	public Entry registerEntry(Entry entry) throws DuplicateInstanceException {
+	public Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException {
+		// check if client already entered
+		if (entry.getClient() != null) {
+			try {
+				entryDao.findUncompletedEntry(entry.getClient().getIdClient());
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.CLIENT_ALREADY_ENTERED,
+						Entry.class.getSimpleName());
+			} catch (InstanceNotFoundException e) {
+				// Entry ok
+			}
+		}
 		try {
 			entryDao.find(entry.getIdEntry());
 			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
@@ -125,15 +134,17 @@ public class ShopServiceImp implements ShopService {
 
 		Calendar now = Calendar.getInstance();
 		e.setEnd(now);
-
 		Calendar start = (Calendar) e.getStart().clone();
-		System.out.println(start.getTimeZone());
-		TimeZone tz = TimeZone.getTimeZone("UTC");
-		start.setTimeZone(tz);
-		System.out.println("Entrada :" + DateUtils.sdfLong.format(start.getTime()));
+
 		long duration = DateUtils.getMinutesDifference(start, now);
 		e.setDuration(duration);
 		return e;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Entry> getDailyEntriesShop(int idShop, Calendar date) {
+		return entryDao.findDailyEntriesShop(idShop, date);
 	}
 
 }

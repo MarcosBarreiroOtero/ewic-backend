@@ -24,7 +24,7 @@ public class ReservationDetails {
 
 	public ReservationDetails(Reservation reservation) {
 		this.idReservation = reservation.getIdReservation();
-		this.date = DateUtils.sdfLong.format(reservation.getDate().getTime());
+		this.date = DateUtils.formatDateLong(reservation.getDate());
 		this.state = reservation.getState();
 		this.remarks = reservation.getRemarks();
 		this.idGoogleLoginClient = reservation.getClient().getIdGoogleLogin();

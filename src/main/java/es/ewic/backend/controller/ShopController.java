@@ -22,11 +22,13 @@ import es.ewic.backend.model.entry.Entry;
 import es.ewic.backend.model.seller.Seller;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
+import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
 import es.ewic.backend.service.sellerService.SellerService;
+import es.ewic.backend.service.shopService.EntryDetails;
 import es.ewic.backend.service.shopService.ShopDetails;
 import es.ewic.backend.service.shopService.ShopService;
 
@@ -47,6 +49,14 @@ public class ShopController {
 			shopDetails.add(new ShopDetails(shop));
 		}
 		return shopDetails;
+	}
+
+	private List<EntryDetails> entriesToEntryDetails(List<Entry> entries) {
+		List<EntryDetails> entryDetails = new ArrayList<EntryDetails>();
+		for (Entry entry : entries) {
+			entryDetails.add(new EntryDetails(entry));
+		}
+		return entryDetails;
 	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -126,6 +136,8 @@ public class ShopController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (DuplicateInstanceException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (NoAuthorizedException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		}
 	}
 
@@ -140,5 +152,19 @@ public class ShopController {
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		}
+	}
+
+	@GetMapping(path = "/{id}/dailyEntries")
+	public List<EntryDetails> getDailyEntries(@PathVariable("id") int idShop,
+			@RequestParam(required = true, name = "date") String date) {
+
+		Calendar day = DateUtils.parseDateDate(date);
+		if (day == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+		}
+
+		List<Entry> entries = shopService.getDailyEntriesShop(idShop, day);
+		return entriesToEntryDetails(entries);
+
 	}
 }

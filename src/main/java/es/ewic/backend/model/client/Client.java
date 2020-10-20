@@ -71,4 +71,8 @@ public class Client implements Serializable {
 		this.email = email;
 	}
 
+	public String completeName() {
+		return (firstName != null && !firstName.isEmpty() ? firstName + " " : "") + (lastName == null ? "" : lastName);
+	}
+
 }

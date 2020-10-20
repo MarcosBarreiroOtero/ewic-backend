@@ -1,5 +1,6 @@
 package es.ewic.backend.service.shopService;
 
+import java.util.Calendar;
 import java.util.List;
 
 import es.ewic.backend.model.entry.Entry;
@@ -18,8 +19,10 @@ public interface ShopService {
 	List<Shop> getShopsByFilters(String name, ShopType type, Float latitude, Float longitude);
 
 	// Entries
-	Entry registerEntry(Entry entry) throws DuplicateInstanceException;
+	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException;
 
 	Entry registerExit(int idEntry) throws InstanceNotFoundException, NoAuthorizedException;
+
+	List<Entry> getDailyEntriesShop(int idShop, Calendar date);
 
 }
