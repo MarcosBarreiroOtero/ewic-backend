@@ -1,7 +1,5 @@
 package es.ewic.backend.controller;
 
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -40,22 +38,16 @@ public class ReservationController {
 	@Autowired
 	private ShopService shopService;
 
-	private List<ReservationDetails> reservationsToReservationsDetails(List<Reservation> reservations) {
-		List<ReservationDetails> reservationsDetails = new ArrayList<ReservationDetails>();
-		for (Reservation rsv : reservations) {
-			reservationsDetails.add(new ReservationDetails(rsv));
-		}
-		return reservationsDetails;
-	}
-
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ReservationDetails addReservation(@RequestBody ReservationDetails reservationDetails) {
 		try {
 
 			Client client = clientService.getClientByIdGoogleLogin(reservationDetails.getIdGoogleLoginClient());
 			Shop shop = shopService.getShopById(reservationDetails.getIdShop());
-			Calendar rsvDate = Calendar.getInstance();
-			rsvDate.setTime(DateUtils.sdfLong.parse(reservationDetails.getDate()));
+			Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
+			if (rsvDate == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+			}
 			Reservation rsv = new Reservation(rsvDate, reservationDetails.getState(), reservationDetails.getRemarks(),
 					client, shop);
 			reservationService.saveOrUpdateReservation(rsv);
@@ -64,8 +56,6 @@ public class ReservationController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-		} catch (ParseException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		}
@@ -83,8 +73,10 @@ public class ReservationController {
 			if (reservation.getShop().getIdShop() == shop.getIdShop()
 					&& reservation.getClient().getIdClient() == client.getIdClient()) {
 
-				Calendar rsvDate = Calendar.getInstance();
-				rsvDate.setTime(DateUtils.sdfLong.parse(reservationDetails.getDate()));
+				Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
+				if (rsvDate == null) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+				}
 				reservation.setDate(rsvDate);
 				reservation.setRemarks(reservationDetails.getRemarks());
 
@@ -96,8 +88,6 @@ public class ReservationController {
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (DuplicateInstanceException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-		} catch (ParseException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
@@ -111,7 +101,7 @@ public class ReservationController {
 			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 
 			List<Reservation> reservations = reservationService.getReservationsByIdClient(client.getIdClient());
-			return reservationsToReservationsDetails(reservations);
+			return TransformationUtils.reservationsToReservationsDetails(reservations);
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

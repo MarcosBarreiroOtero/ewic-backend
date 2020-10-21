@@ -70,7 +70,7 @@ public class ReservationServiceImp implements ReservationService {
 		try {
 			reservationDao.findByDateShopAndClient(rsv.getDate(), rsv.getShop().getIdShop(),
 					rsv.getClient().getIdClient());
-			throw new DuplicateInstanceException(DateUtils.sdfLong.format(rsv.getDate().getTime()),
+			throw new DuplicateInstanceException(DateUtils.formatDateLong(rsv.getDate()),
 					Reservation.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			// no duplicate

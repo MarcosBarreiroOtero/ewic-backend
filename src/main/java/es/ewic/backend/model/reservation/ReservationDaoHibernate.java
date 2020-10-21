@@ -38,8 +38,7 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 				.setParameter("date", date).setMaxResults(1).uniqueResult();
 
 		if (rsv == null) {
-			throw new InstanceNotFoundException(DateUtils.sdfLong.format(date.getTime()),
-					Reservation.class.getSimpleName());
+			throw new InstanceNotFoundException(DateUtils.formatDateLong(date), Reservation.class.getSimpleName());
 		} else {
 			return rsv;
 		}
