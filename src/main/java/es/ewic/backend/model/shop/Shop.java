@@ -38,6 +38,8 @@ public class Shop implements Serializable {
 	private float longitude;
 	private String location;
 	private int maxCapacity;
+	private int actualCapacity;
+	private boolean allowEntries;
 	private ShopType type;
 
 	private Seller seller;
@@ -53,6 +55,8 @@ public class Shop implements Serializable {
 		this.longitude = longitude;
 		this.location = location;
 		this.maxCapacity = maxCapacity;
+		this.actualCapacity = 0;
+		this.allowEntries = false;
 		this.type = type;
 		this.seller = seller;
 	}
@@ -63,6 +67,8 @@ public class Shop implements Serializable {
 		this.latitude = details.getLatitude();
 		this.location = details.getLocation();
 		this.maxCapacity = details.getMaxCapacity();
+		this.actualCapacity = 0;
+		this.allowEntries = false;
 		this.type = details.getType();
 		this.seller = seller;
 	}
@@ -115,6 +121,22 @@ public class Shop implements Serializable {
 
 	public void setMaxCapacity(int maxCapacity) {
 		this.maxCapacity = maxCapacity;
+	}
+
+	public int getActualCapacity() {
+		return actualCapacity;
+	}
+
+	public void setActualCapacity(int actualCapacity) {
+		this.actualCapacity = actualCapacity;
+	}
+
+	public boolean isAllowEntries() {
+		return allowEntries;
+	}
+
+	public void setAllowEntries(boolean allowEntries) {
+		this.allowEntries = allowEntries;
 	}
 
 	public ShopType getType() {

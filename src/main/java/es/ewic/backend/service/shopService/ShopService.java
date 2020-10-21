@@ -18,6 +18,10 @@ public interface ShopService {
 
 	List<Shop> getShopsByFilters(String name, ShopType type, Float latitude, Float longitude);
 
+	void startCapacityControl(int idShop) throws InstanceNotFoundException;
+
+	void endCapacityControl(int idShop) throws InstanceNotFoundException;
+
 	// Entries
 	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException;
 

@@ -11,6 +11,7 @@ public class ShopDetails {
 	private float longitude;
 	private String location;
 	private int maxCapacity;
+	private int actualCapacity;
 	private ShopType type;
 	private int idSeller;
 
@@ -32,6 +33,7 @@ public class ShopDetails {
 		this.longitude = shop.getLongitude();
 		this.location = shop.getLocation();
 		this.maxCapacity = shop.getMaxCapacity();
+		this.actualCapacity = shop.getActualCapacity();
 		this.type = shop.getType();
 		this.idSeller = shop.getSeller().getIdSeller();
 	}
@@ -58,6 +60,10 @@ public class ShopDetails {
 
 	public int getMaxCapacity() {
 		return maxCapacity;
+	}
+
+	public int getActualCapacity() {
+		return actualCapacity;
 	}
 
 	public ShopType getType() {

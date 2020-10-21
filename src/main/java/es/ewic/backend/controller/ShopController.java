@@ -67,10 +67,14 @@ public class ShopController {
 			Shop shop = shopService.getShopById(idShop);
 
 			if (shop.getSeller().getIdSeller() == seller.getIdSeller()) {
-				Shop updateShop = new Shop(shopDetails, seller);
-				updateShop.setIdShop(shop.getIdShop());
-				shopService.saveOrUpdateShop(updateShop);
-				return new ShopDetails(updateShop);
+				shop.setName(shopDetails.getName());
+				shop.setLatitude(shopDetails.getLatitude());
+				shop.setLongitude(shopDetails.getLongitude());
+				shop.setMaxCapacity(shopDetails.getMaxCapacity());
+				shop.setLocation(shopDetails.getLocation());
+				shop.setType(shopDetails.getType());
+				shopService.saveOrUpdateShop(shop);
+				return new ShopDetails(shop);
 			} else {
 				throw new InstanceNotFoundException(idShop, ShopController.class.getSimpleName());
 			}
@@ -97,6 +101,24 @@ public class ShopController {
 		List<Shop> shops = shopService.getShopsByFilters(name, shopType, latitude, longitude);
 		return TransformationUtils.shopsToShopDetails(shops);
 
+	}
+
+	@PutMapping(path = "/{id}/open")
+	private void shopStartCapacityControl(@PathVariable("id") int idShop) {
+		try {
+			shopService.startCapacityControl(idShop);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PutMapping(path = "/{id}/close")
+	private void shopEndCapacityControl(@PathVariable("id") int idShop) {
+		try {
+			shopService.endCapacityControl(idShop);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 
 	// ENTRIES
