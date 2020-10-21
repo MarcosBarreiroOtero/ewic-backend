@@ -12,4 +12,6 @@ public interface EntryDao extends GenericDao<Entry, Integer> {
 
 	List<Entry> findDailyEntriesShop(int idShop, Calendar date);
 
+	List<Entry> findEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo);
+
 }

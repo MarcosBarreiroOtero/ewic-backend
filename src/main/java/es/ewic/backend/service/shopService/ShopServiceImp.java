@@ -147,4 +147,9 @@ public class ShopServiceImp implements ShopService {
 		return entryDao.findDailyEntriesShop(idShop, date);
 	}
 
+	@Override
+	public List<Entry> getEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo) {
+		return entryDao.findEntriesClientBetweenDates(idClient, dateFrom, dateTo);
+	}
+
 }

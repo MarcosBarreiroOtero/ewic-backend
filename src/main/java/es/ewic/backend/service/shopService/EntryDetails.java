@@ -13,7 +13,11 @@ public class EntryDetails {
 
 	public EntryDetails(Entry entry) {
 		this.start = DateUtils.formatDateLong(entry.getStart());
-		this.end = DateUtils.formatDateLong(entry.getEnd());
+		if (entry.getEnd() != null) {
+			this.end = DateUtils.formatDateLong(entry.getEnd());
+		} else {
+			this.end = null;
+		}
 		this.duration = entry.getDuration();
 		this.shopName = entry.getShop().getName();
 		if (entry.getClient() != null) {

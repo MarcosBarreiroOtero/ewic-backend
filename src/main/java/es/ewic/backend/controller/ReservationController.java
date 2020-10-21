@@ -1,6 +1,5 @@
 package es.ewic.backend.controller;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -38,14 +37,6 @@ public class ReservationController {
 	private ClientService clientService;
 	@Autowired
 	private ShopService shopService;
-
-	private List<ReservationDetails> reservationsToReservationsDetails(List<Reservation> reservations) {
-		List<ReservationDetails> reservationsDetails = new ArrayList<ReservationDetails>();
-		for (Reservation rsv : reservations) {
-			reservationsDetails.add(new ReservationDetails(rsv));
-		}
-		return reservationsDetails;
-	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ReservationDetails addReservation(@RequestBody ReservationDetails reservationDetails) {
@@ -110,7 +101,7 @@ public class ReservationController {
 			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 
 			List<Reservation> reservations = reservationService.getReservationsByIdClient(client.getIdClient());
-			return reservationsToReservationsDetails(reservations);
+			return TransformationUtils.reservationsToReservationsDetails(reservations);
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

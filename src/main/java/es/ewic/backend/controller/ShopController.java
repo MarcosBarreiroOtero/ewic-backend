@@ -1,6 +1,5 @@
 package es.ewic.backend.controller;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -42,22 +41,6 @@ public class ShopController {
 	private SellerService sellerService;
 	@Autowired
 	private ClientService clientService;
-
-	private List<ShopDetails> shopsToShopDetails(List<Shop> shops) {
-		List<ShopDetails> shopDetails = new ArrayList<ShopDetails>();
-		for (Shop shop : shops) {
-			shopDetails.add(new ShopDetails(shop));
-		}
-		return shopDetails;
-	}
-
-	private List<EntryDetails> entriesToEntryDetails(List<Entry> entries) {
-		List<EntryDetails> entryDetails = new ArrayList<EntryDetails>();
-		for (Entry entry : entries) {
-			entryDetails.add(new EntryDetails(entry));
-		}
-		return entryDetails;
-	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopDetails registerShop(@RequestBody ShopDetails shopDetails) {
@@ -112,7 +95,7 @@ public class ShopController {
 			@RequestParam(required = false) ShopType shopType) {
 
 		List<Shop> shops = shopService.getShopsByFilters(name, shopType, latitude, longitude);
-		return shopsToShopDetails(shops);
+		return TransformationUtils.shopsToShopDetails(shops);
 
 	}
 
@@ -164,7 +147,7 @@ public class ShopController {
 		}
 
 		List<Entry> entries = shopService.getDailyEntriesShop(idShop, day);
-		return entriesToEntryDetails(entries);
+		return TransformationUtils.entriesToEntryDetails(entries);
 
 	}
 }
