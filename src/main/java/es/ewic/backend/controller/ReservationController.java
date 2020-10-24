@@ -23,6 +23,7 @@ import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
+import es.ewic.backend.service.mailService.MailService;
 import es.ewic.backend.service.reservationService.ReservationDetails;
 import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.shopService.ShopService;
@@ -37,20 +38,42 @@ public class ReservationController {
 	private ClientService clientService;
 	@Autowired
 	private ShopService shopService;
+	@Autowired
+	private MailService mailService;
 
-	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ReservationDetails addReservation(@RequestBody ReservationDetails reservationDetails) {
+	private Reservation saveNewReservation(ReservationDetails reservationDetails)
+			throws InstanceNotFoundException, DuplicateInstanceException, NoAuthorizedException {
+		Client client = clientService.getClientByIdGoogleLogin(reservationDetails.getIdGoogleLoginClient());
+		Shop shop = shopService.getShopById(reservationDetails.getIdShop());
+		Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
+		if (rsvDate == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+		}
+		Reservation rsv = new Reservation(rsvDate, reservationDetails.getState(), reservationDetails.getRemarks(),
+				client, shop);
+		return reservationService.saveOrUpdateReservation(rsv);
+	}
+
+	@PostMapping(path = "/client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ReservationDetails addReservationClient(@RequestBody ReservationDetails reservationDetails) {
 		try {
+			Reservation rsv = saveNewReservation(reservationDetails);
+			mailService.sendSellerNewReservation(rsv);
+			return new ReservationDetails(rsv);
+		} catch (DuplicateInstanceException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (NoAuthorizedException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		}
+	}
 
-			Client client = clientService.getClientByIdGoogleLogin(reservationDetails.getIdGoogleLoginClient());
-			Shop shop = shopService.getShopById(reservationDetails.getIdShop());
-			Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
-			if (rsvDate == null) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
-			}
-			Reservation rsv = new Reservation(rsvDate, reservationDetails.getState(), reservationDetails.getRemarks(),
-					client, shop);
-			reservationService.saveOrUpdateReservation(rsv);
+	@PostMapping(path = "/seller", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ReservationDetails addReservationSeller(@RequestBody ReservationDetails reservationDetails) {
+		try {
+			Reservation rsv = saveNewReservation(reservationDetails);
+			mailService.sendClientNewReservation(rsv);
 			return new ReservationDetails(rsv);
 		} catch (DuplicateInstanceException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

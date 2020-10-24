@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.ewic.backend.model.reservation.Reservation;
 import es.ewic.backend.modelutil.ConfigurationGlobalNames;
 import es.ewic.backend.service.configurationService.ConfigurationService;
 
@@ -38,10 +39,19 @@ public class MailServiceImp implements MailService {
 		mailSender.setPassword(
 				configurationService.readControlParameterByNameAndShop(ConfigurationGlobalNames.MAIL_PASSWORD, idShop));
 
+		if (mailSender.getHost().equals("") || mailSender.getUsername().equals("")
+				|| mailSender.getPassword().equals("")) {
+			return null;
+		}
+
 		Properties props = mailSender.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.timeout", "10000");
+		props.put("mail.smtp.connectiontimeout", "10000");
+		props.put("mail.smtp.writetimeout", "10000");
+
 		props.put("mail.debug", "true");
 
 		return mailSender;
@@ -53,6 +63,11 @@ public class MailServiceImp implements MailService {
 	public Future<String> sendMail(int idShop, String message, String to, String subject) {
 		JavaMailSender mailSender = getJavaMailSender(idShop);
 
+		if (mailSender == null) {
+			System.out.println("Email not configured");
+			return new AsyncResult<>("Error");
+		}
+
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 		try {
@@ -62,11 +77,32 @@ public class MailServiceImp implements MailService {
 			helper.setFrom(configurationService
 					.readControlParameterByNameAndShop(ConfigurationGlobalNames.MAIL_USERNAME, idShop));
 			mailSender.send(mimeMessage);
+			return new AsyncResult<>("Email Send Successfully");
 		} catch (MessagingException e) {
 			e.printStackTrace();
+			return new AsyncResult<>("Error");
 		}
 
-		return new AsyncResult<>("Okey");
+	}
+
+	@Override
+	@Async
+	public Future<String> sendClientNewReservation(Reservation reservation) {
+		String content = MailTemplates.newReservationClientMessage(reservation);
+		String to = reservation.getClient().getEmail();
+		String subject = MailTemplates.newReservationClientSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
+	}
+
+	@Override
+	@Async
+	public Future<String> sendSellerNewReservation(Reservation reservation) {
+		String content = MailTemplates.newReservationSellerMessage(reservation);
+		String to = reservation.getShop().getSeller().getEmail();
+		String subject = MailTemplates.newReservationSellerSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
 	}
 
 }
