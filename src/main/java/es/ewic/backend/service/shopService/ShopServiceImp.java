@@ -17,6 +17,7 @@ import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 
 @Service("shopService")
@@ -27,6 +28,36 @@ public class ShopServiceImp implements ShopService {
 	private ShopDao shopDao;
 	@Autowired
 	private EntryDao entryDao;
+
+	private void checkShopDuplicate(Shop shop) throws DuplicateInstanceException {
+
+		if (shopDao.checkShopDuplicate(shop.getIdShop(), shop.getName(), shop.getLocation(), shop.getType())) {
+			throw new DuplicateInstanceException(shop.getName(), Shop.class.getSimpleName());
+		}
+	}
+
+	private static float distFrom(float lat1, float lng1, float lat2, float lng2) {
+		double earthRadius = 6371000; // meters
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
+				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		float dist = (float) (earthRadius * c);
+
+		return dist;
+	}
+
+	private Entry endEntry(Entry e) {
+		Calendar now = Calendar.getInstance();
+		e.setEnd(now);
+		Calendar start = (Calendar) e.getStart().clone();
+
+		long duration = DateUtils.getMinutesDifference(start, now);
+		e.setDuration(duration);
+
+		return e;
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -62,13 +93,6 @@ public class ShopServiceImp implements ShopService {
 		}
 	}
 
-	private void checkShopDuplicate(Shop shop) throws DuplicateInstanceException {
-
-		if (shopDao.checkShopDuplicate(shop.getIdShop(), shop.getName(), shop.getLocation(), shop.getType())) {
-			throw new DuplicateInstanceException(shop.getName(), Shop.class.getSimpleName());
-		}
-	}
-
 	@Override
 	public List<Shop> getShopsByFilters(String name, ShopType type, Float latitude, Float longitude) {
 
@@ -90,20 +114,39 @@ public class ShopServiceImp implements ShopService {
 		return shops;
 	}
 
-	private static float distFrom(float lat1, float lng1, float lat2, float lng2) {
-		double earthRadius = 6371000; // meters
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		float dist = (float) (earthRadius * c);
-
-		return dist;
+	@Override
+	public void startCapacityControl(int idShop) throws InstanceNotFoundException {
+		Shop shop = shopDao.find(idShop);
+		shop.setAllowEntries(true);
 	}
 
 	@Override
-	public Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException {
+	public void endCapacityControl(int idShop) throws InstanceNotFoundException {
+		Shop shop = shopDao.find(idShop);
+		shop.setAllowEntries(false);
+		shop.setActualCapacity(0);
+
+		List<Entry> entries = entryDao.findUncompletedEntriesByShop(idShop);
+
+		for (Entry entry : entries) {
+			endEntry(entry);
+		}
+
+	}
+
+	@Override
+	public Entry registerEntry(Entry entry)
+			throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException {
+		// Check open shop
+		if (!entry.getShop().isAllowEntries()) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
+		}
+
+		// Check max capacity
+		if (entry.getShop().getActualCapacity() >= entry.getShop().getMaxCapacity()) {
+			throw new MaxCapacityException(entry.getShop().getIdShop(), ShopService.class.getSimpleName());
+		}
+
 		// check if client already entered
 		if (entry.getClient() != null) {
 			try {
@@ -119,6 +162,11 @@ public class ShopServiceImp implements ShopService {
 			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			entryDao.save(entry);
+
+			Shop shop = entry.getShop();
+			shop.setActualCapacity(shop.getActualCapacity() + 1);
+			shopDao.save(shop);
+
 			return entry;
 		}
 	}
@@ -132,12 +180,17 @@ public class ShopServiceImp implements ShopService {
 					Entry.class.getSimpleName());
 		}
 
-		Calendar now = Calendar.getInstance();
-		e.setEnd(now);
-		Calendar start = (Calendar) e.getStart().clone();
+		// Check open shop
+		if (!e.getShop().isAllowEntries()) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
+		}
 
-		long duration = DateUtils.getMinutesDifference(start, now);
-		e.setDuration(duration);
+		e = endEntry(e);
+
+		Shop shop = e.getShop();
+		shop.setActualCapacity(shop.getActualCapacity() - 1);
+		shopDao.save(shop);
+
 		return e;
 	}
 

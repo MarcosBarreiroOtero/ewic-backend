@@ -27,6 +27,13 @@ public class EntryDaoHibernate extends GenericDaoHibernate<Entry, Integer> imple
 	}
 
 	@Override
+	public List<Entry> findUncompletedEntriesByShop(int idShop) throws InstanceNotFoundException {
+		return getSession()
+				.createQuery("SELECT e FROM Entry e where e.shop.idShop = :idShop AND e.end is NULL", Entry.class)
+				.setParameter("idShop", idShop).list();
+	}
+
+	@Override
 	public List<Entry> findDailyEntriesShop(int idShop, Calendar date) {
 		return getSession()
 				.createQuery("SELECT e FROM Entry e where e.shop.idShop = :idShop AND DATE(e.start) = DATE(:date)",

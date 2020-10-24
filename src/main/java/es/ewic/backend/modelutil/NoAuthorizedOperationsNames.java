@@ -10,6 +10,7 @@ public class NoAuthorizedOperationsNames {
 	public static final String MOVE_RESERVATION_TO_PAST = "Move reservation to past";
 
 	// ENTRY
+	public static final String SHOP_NOT_OPENED = "Shop not opened";
 	public static final String CLIENT_ALREADY_ENTERED = "Client already entered";
 	public static final String EXIT_ALREADY_REGISTERED = "Exit already registered";
 

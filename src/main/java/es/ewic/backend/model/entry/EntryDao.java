@@ -10,6 +10,8 @@ public interface EntryDao extends GenericDao<Entry, Integer> {
 
 	Entry findUncompletedEntry(int idClient) throws InstanceNotFoundException;
 
+	List<Entry> findUncompletedEntriesByShop(int idShop) throws InstanceNotFoundException;
+
 	List<Entry> findDailyEntriesShop(int idShop, Calendar date);
 
 	List<Entry> findEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo);

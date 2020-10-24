@@ -24,6 +24,7 @@ import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
 import es.ewic.backend.service.sellerService.SellerService;
@@ -67,10 +68,14 @@ public class ShopController {
 			Shop shop = shopService.getShopById(idShop);
 
 			if (shop.getSeller().getIdSeller() == seller.getIdSeller()) {
-				Shop updateShop = new Shop(shopDetails, seller);
-				updateShop.setIdShop(shop.getIdShop());
-				shopService.saveOrUpdateShop(updateShop);
-				return new ShopDetails(updateShop);
+				shop.setName(shopDetails.getName());
+				shop.setLatitude(shopDetails.getLatitude());
+				shop.setLongitude(shopDetails.getLongitude());
+				shop.setMaxCapacity(shopDetails.getMaxCapacity());
+				shop.setLocation(shopDetails.getLocation());
+				shop.setType(shopDetails.getType());
+				shopService.saveOrUpdateShop(shop);
+				return new ShopDetails(shop);
 			} else {
 				throw new InstanceNotFoundException(idShop, ShopController.class.getSimpleName());
 			}
@@ -99,6 +104,24 @@ public class ShopController {
 
 	}
 
+	@PutMapping(path = "/{id}/open")
+	private void shopStartCapacityControl(@PathVariable("id") int idShop) {
+		try {
+			shopService.startCapacityControl(idShop);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PutMapping(path = "/{id}/close")
+	private void shopEndCapacityControl(@PathVariable("id") int idShop) {
+		try {
+			shopService.endCapacityControl(idShop);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	// ENTRIES
 	@PostMapping(path = "/{id}/entry")
 	public int registerEntry(@PathVariable("id") int idShop, @RequestParam(required = false) String idGoogleLogin) {
@@ -121,6 +144,8 @@ public class ShopController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		} catch (MaxCapacityException e) {
+			throw new ResponseStatusException(HttpStatus.ACCEPTED, e.getMessage());
 		}
 	}
 

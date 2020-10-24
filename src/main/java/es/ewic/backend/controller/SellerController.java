@@ -92,7 +92,7 @@ public class SellerController {
 			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
 				sellerService.deleteSeller(idSeller);
 			} else {
-				throw new InstanceNotFoundException(idSeller, SellerController.class.getSimpleName());
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
 			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
