@@ -8,6 +8,7 @@ import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 
 public interface ShopService {
@@ -23,7 +24,7 @@ public interface ShopService {
 	void endCapacityControl(int idShop) throws InstanceNotFoundException;
 
 	// Entries
-	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException;
+	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException;
 
 	Entry registerExit(int idEntry) throws InstanceNotFoundException, NoAuthorizedException;
 

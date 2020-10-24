@@ -24,6 +24,7 @@ import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
 import es.ewic.backend.service.sellerService.SellerService;
@@ -143,6 +144,8 @@ public class ShopController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		} catch (MaxCapacityException e) {
+			throw new ResponseStatusException(HttpStatus.ACCEPTED, e.getMessage());
 		}
 	}
 

@@ -17,6 +17,7 @@ import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
+import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 
 @Service("shopService")
@@ -134,10 +135,16 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
-	public Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException {
+	public Entry registerEntry(Entry entry)
+			throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException {
 		// Check open shop
 		if (!entry.getShop().isAllowEntries()) {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
+		}
+
+		// Check max capacity
+		if (entry.getShop().getActualCapacity() >= entry.getShop().getMaxCapacity()) {
+			throw new MaxCapacityException(entry.getShop().getIdShop(), ShopService.class.getSimpleName());
 		}
 
 		// check if client already entered
