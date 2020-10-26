@@ -27,8 +27,15 @@ public class SellerServiceImp implements SellerService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Seller getSellerById(int idSeller) throws InstanceNotFoundException {
 		return sellerDao.find(idSeller);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Seller getSellerByLoginName(String loginName) throws InstanceNotFoundException {
+		return sellerDao.findByLoginName(loginName);
 	}
 
 	@Override
@@ -92,4 +99,5 @@ public class SellerServiceImp implements SellerService {
 		sellerDao.remove(idSeller);
 
 	}
+
 }

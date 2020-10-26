@@ -6,19 +6,24 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import es.ewic.backend.model.client.Client;
 import es.ewic.backend.model.reservation.Reservation;
+import es.ewic.backend.model.reservation.Reservation.ReservationState;
+import es.ewic.backend.model.seller.Seller;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.modelutil.DateUtils;
+import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
@@ -26,6 +31,7 @@ import es.ewic.backend.service.clientService.ClientService;
 import es.ewic.backend.service.mailService.MailService;
 import es.ewic.backend.service.reservationService.ReservationDetails;
 import es.ewic.backend.service.reservationService.ReservationService;
+import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.ShopService;
 
 @RestController
@@ -36,6 +42,8 @@ public class ReservationController {
 	private ReservationService reservationService;
 	@Autowired
 	private ClientService clientService;
+	@Autowired
+	private SellerService sellerService;
 	@Autowired
 	private ShopService shopService;
 	@Autowired
@@ -54,6 +62,29 @@ public class ReservationController {
 		return reservationService.saveOrUpdateReservation(rsv);
 	}
 
+	private Reservation updateReservation(Reservation reservation, ReservationDetails reservationDetails)
+			throws InstanceNotFoundException, DuplicateInstanceException, NoAuthorizedException {
+		Shop shop = shopService.getShopById(reservationDetails.getIdShop());
+		Client client = clientService.getClientByIdGoogleLogin(reservationDetails.getIdGoogleLoginClient());
+
+		if (reservation.getShop().getIdShop() == shop.getIdShop()
+				&& reservation.getClient().getIdClient() == client.getIdClient()) {
+
+			Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
+			if (rsvDate == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+			}
+			reservation.setDate(rsvDate);
+			reservation.setRemarks(reservationDetails.getRemarks());
+
+			reservationService.saveOrUpdateReservation(reservation);
+			return reservation;
+		} else {
+			throw new InstanceNotFoundException(reservation.getIdReservation(), Reservation.class.getSimpleName());
+		}
+	}
+
+	// CLIENTS ENDPOINT
 	@PostMapping(path = "/client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ReservationDetails addReservationClient(@RequestBody ReservationDetails reservationDetails) {
 		try {
@@ -69,6 +100,54 @@ public class ReservationController {
 		}
 	}
 
+	@PutMapping(path = "/client/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ReservationDetails updateReservationClient(@PathVariable("id") int idReservation,
+			@RequestBody ReservationDetails reservationDetails) {
+
+		try {
+			Reservation reservation = reservationService.getReservationById(idReservation);
+
+			Calendar oldDate = (Calendar) reservation.getDate().clone();
+			reservation = updateReservation(reservation, reservationDetails);
+			if (!DateUtils.compareDatesExtensiveByGet(oldDate, reservation.getDate())) {
+				mailService.sendSellerUpdateReservation(reservation, oldDate);
+			}
+			return new ReservationDetails(reservation);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (DuplicateInstanceException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (NoAuthorizedException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		}
+
+	}
+
+	@DeleteMapping(path = "/client/{id}")
+	public void deleteReservationClient(@PathVariable("id") int idReservation,
+			@RequestParam(required = true, name = "idGoogleLogin") String idGoogleLogin) {
+
+		try {
+			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
+			Reservation rsv = reservationService.getReservationById(idReservation);
+
+			if (rsv.getState() == ReservationState.CANCELLED) {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+						NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE);
+			}
+
+			if (rsv.getClient().getIdGoogleLogin().equals(client.getIdGoogleLogin())) {
+				reservationService.cancelReservation(idReservation);
+				mailService.sendSellerDeleteReservation(rsv);
+			} else {
+				throw new InstanceNotFoundException(idReservation, Reservation.class.getSimpleName());
+			}
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	// SELLER ENDPOINTS
 	@PostMapping(path = "/seller", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ReservationDetails addReservationSeller(@RequestBody ReservationDetails reservationDetails) {
 		try {
@@ -84,8 +163,8 @@ public class ReservationController {
 		}
 	}
 
-	@PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ReservationDetails updateReservation(@PathVariable("id") int idReservation,
+	@PutMapping(path = "/seller/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ReservationDetails updateReservationSeller(@PathVariable("id") int idReservation,
 			@RequestBody ReservationDetails reservationDetails) {
 
 		try {
@@ -96,6 +175,7 @@ public class ReservationController {
 			if (reservation.getShop().getIdShop() == shop.getIdShop()
 					&& reservation.getClient().getIdClient() == client.getIdClient()) {
 
+				Calendar oldDate = (Calendar) reservation.getDate().clone();
 				Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
 				if (rsvDate == null) {
 					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
@@ -104,6 +184,11 @@ public class ReservationController {
 				reservation.setRemarks(reservationDetails.getRemarks());
 
 				reservationService.saveOrUpdateReservation(reservation);
+				System.out.println(oldDate.getTime().toString());
+				System.out.println(rsvDate.getTime().toString());
+				if (!DateUtils.compareDatesExtensiveByGet(oldDate, rsvDate)) {
+					mailService.sendClientUpdateReservation(reservation, oldDate);
+				}
 				return new ReservationDetails(reservation);
 			} else {
 				throw new InstanceNotFoundException(idReservation, Reservation.class.getSimpleName());
@@ -114,6 +199,30 @@ public class ReservationController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+		}
+	}
+
+	@DeleteMapping(path = "/seller/{id}")
+	public void deleteReservationSeller(@PathVariable("id") int idReservation,
+			@RequestParam(required = true, name = "loginName") String loginName) {
+
+		try {
+			Seller seller = sellerService.getSellerByLoginName(loginName);
+			Reservation rsv = reservationService.getReservationById(idReservation);
+
+			if (rsv.getState() == ReservationState.CANCELLED) {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+						NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE);
+			}
+
+			if (rsv.getShop().getSeller().getLoginName().equals(seller.getLoginName())) {
+				reservationService.cancelReservation(idReservation);
+				mailService.sendClientDeleteReservation(rsv);
+			} else {
+				throw new InstanceNotFoundException(idReservation, Reservation.class.getSimpleName());
+			}
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
 

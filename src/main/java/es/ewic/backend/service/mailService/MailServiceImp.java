@@ -1,5 +1,6 @@
 package es.ewic.backend.service.mailService;
 
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
@@ -101,6 +102,46 @@ public class MailServiceImp implements MailService {
 		String content = MailTemplates.newReservationSellerMessage(reservation);
 		String to = reservation.getShop().getSeller().getEmail();
 		String subject = MailTemplates.newReservationSellerSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
+	}
+
+	@Override
+	@Async
+	public Future<String> sendClientUpdateReservation(Reservation reservation, Calendar oldDate) {
+		String content = MailTemplates.updateReservationClientMessage(reservation, oldDate);
+		String to = reservation.getShop().getSeller().getEmail();
+		String subject = MailTemplates.updateReservationClientSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
+	}
+
+	@Override
+	@Async
+	public Future<String> sendSellerUpdateReservation(Reservation reservation, Calendar oldDate) {
+		String content = MailTemplates.updateReservationSellerMessage(reservation, oldDate);
+		String to = reservation.getShop().getSeller().getEmail();
+		String subject = MailTemplates.updateReservationSellerSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
+	}
+
+	@Override
+	@Async
+	public Future<String> sendClientDeleteReservation(Reservation reservation) {
+		String content = MailTemplates.deleteReservationClientMessage(reservation);
+		String to = reservation.getShop().getSeller().getEmail();
+		String subject = MailTemplates.deleteReservationClientSubject(reservation);
+
+		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
+	}
+
+	@Override
+	@Async
+	public Future<String> sendSellerDeleteReservation(Reservation reservation) {
+		String content = MailTemplates.deleteReservationSellerMessage(reservation);
+		String to = reservation.getShop().getSeller().getEmail();
+		String subject = MailTemplates.deleteReservationSellerSubject(reservation);
 
 		return sendMail(reservation.getShop().getIdShop(), content, to, subject);
 	}
