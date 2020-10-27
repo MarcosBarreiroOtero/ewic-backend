@@ -16,6 +16,7 @@ public class AppApplication {
 		System.setProperty("server.error.include-message", "always");
 		System.setProperty("server.servlet.context-path", "/ewic");
 		SpringApplication.run(AppApplication.class, args);
+
 	}
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.ewic.backend.model.reservation.Reservation;
+import es.ewic.backend.model.reservation.Reservation.ReservationState;
 import es.ewic.backend.model.reservation.ReservationDao;
 import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
@@ -35,6 +36,11 @@ public class ReservationServiceImp implements ReservationService {
 		Calendar now = Calendar.getInstance();
 		try {
 			Reservation rsv = reservationDao.find(reservation.getIdReservation());
+
+			if (reservation.getState() != ReservationState.ACTIVE) {
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE,
+						Reservation.class.getSimpleName());
+			}
 
 			if (reservation.getShop().getIdShop() != rsv.getShop().getIdShop()
 					|| reservation.getClient().getIdClient() != rsv.getClient().getIdClient()) {
@@ -81,6 +87,14 @@ public class ReservationServiceImp implements ReservationService {
 	@Transactional(readOnly = true)
 	public List<Reservation> getReservationsByIdClient(int idClient) {
 		return reservationDao.findAllByClientId(idClient);
+	}
+
+	@Override
+	public void cancelReservation(int idReservation) throws InstanceNotFoundException {
+		Reservation rsv = getReservationById(idReservation);
+		rsv.setState(ReservationState.CANCELLED);
+		reservationDao.save(rsv);
+		return;
 	}
 
 }

@@ -126,6 +126,26 @@ public class DateUtils {
 	}
 
 	/**
+	 * Fast method to compare if two dates are equals until minutes using their Get
+	 * methods without use Calendars.
+	 * 
+	 * @param date1
+	 * @param date2
+	 * 
+	 * @return the value true if the time represented by the date1 is equal to
+	 *         date2; in other case return the value false. Not compare if the time
+	 *         between dates is before or after; for that, use compareDays method.
+	 */
+	public static boolean compareDatesExtensiveByGet(Calendar date1, Calendar date2) {
+		boolean isEqual = date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR)
+				&& date1.get(Calendar.MONTH) == date2.get(Calendar.MONTH)
+				&& date1.get(Calendar.DATE) == date2.get(Calendar.DATE)
+				&& date1.get(Calendar.HOUR_OF_DAY) == date2.get(Calendar.HOUR_OF_DAY)
+				&& date1.get(Calendar.MINUTE) == date2.get(Calendar.MINUTE);
+		return isEqual;
+	}
+
+	/**
 	 * Method to calculate minutes of difference between two dates
 	 * 
 	 * @param dateFrom

@@ -80,4 +80,12 @@ public class Seller implements Serializable {
 		this.email = email;
 	}
 
+	public String completeName() {
+		return (firstName != null && !firstName.isEmpty() ? firstName + " " : "") + (lastName == null ? "" : lastName);
+	}
+
+	public String completeNameFormal() {
+		return (lastName != null && !lastName.isEmpty() ? lastName + ", " : "") + (firstName == null ? "" : firstName);
+	}
+
 }

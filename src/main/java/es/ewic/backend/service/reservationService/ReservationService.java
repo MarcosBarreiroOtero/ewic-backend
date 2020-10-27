@@ -16,4 +16,6 @@ public interface ReservationService {
 
 	List<Reservation> getReservationsByIdClient(int idClient);
 
+	void cancelReservation(int idReservation) throws InstanceNotFoundException;
+
 }
