@@ -14,4 +14,8 @@ public interface ReservationDao extends GenericDao<Reservation, Integer> {
 
 	Reservation findByDateShopAndClient(Calendar date, int idShop, int idClient) throws InstanceNotFoundException;
 
+	List<Reservation> getFutureActiveReservations(Calendar date);
+
+	List<Reservation> getWaitingReservations();
+
 }

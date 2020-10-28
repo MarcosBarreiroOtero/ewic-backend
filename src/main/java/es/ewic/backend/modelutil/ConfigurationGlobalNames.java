@@ -8,4 +8,7 @@ public class ConfigurationGlobalNames {
 	public static String MAIL_USERNAME = "mailUsername";
 	public static String MAIL_PASSWORD = "mailPassword";
 
+	// Reservation params
+	public static String RESERVATION_WAIT_MINUTES = "reservationWaitMinutes";
+
 }

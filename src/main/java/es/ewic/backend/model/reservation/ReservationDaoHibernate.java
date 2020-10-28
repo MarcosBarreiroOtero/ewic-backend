@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import es.ewic.backend.model.reservation.Reservation.ReservationState;
 import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.dao.GenericDaoHibernate;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
@@ -42,6 +43,20 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 		} else {
 			return rsv;
 		}
+	}
+
+	@Override
+	public List<Reservation> getFutureActiveReservations(Calendar date) {
+		return getSession().createQuery(
+				"SELECT r FROM Reservation r WHERE TIMESTAMP(r.date) >= TIMESTAMP(:date) AND r.state = :activeStates",
+				Reservation.class).setParameter("date", date).setParameter("activeStates", ReservationState.ACTIVE)
+				.list();
+	}
+
+	@Override
+	public List<Reservation> getWaitingReservations() {
+		return getSession().createQuery("SELECT r FROM Reservation r WHERE r.state = :waiting", Reservation.class)
+				.setParameter("waiting", ReservationState.WAITING).list();
 	}
 
 }
