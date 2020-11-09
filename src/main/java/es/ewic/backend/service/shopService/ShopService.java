@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import es.ewic.backend.model.entry.Entry;
+import es.ewic.backend.model.reservation.Reservation;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
@@ -25,6 +26,9 @@ public interface ShopService {
 
 	// Entries
 	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException;
+
+	Entry registerEntryWithReservation(Entry entry, Reservation reservation)
+			throws DuplicateInstanceException, NoAuthorizedException;
 
 	Entry registerExit(int idEntry) throws InstanceNotFoundException, NoAuthorizedException;
 

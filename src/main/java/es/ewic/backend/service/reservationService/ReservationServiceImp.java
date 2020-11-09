@@ -164,4 +164,27 @@ public class ReservationServiceImp implements ReservationService {
 		}
 	}
 
+	@Override
+	public Reservation getCloseReservationByClient(Calendar now, int idClient) {
+
+		List<Reservation> reservations = reservationDao.getActiveAndWaitingReservationsByClientAndDay(now, idClient);
+		System.out.println(reservations.size());
+		Reservation waitingRsv = reservations.stream().filter(r -> r.getState() == ReservationState.WAITING).findFirst()
+				.orElse(null);
+		if (waitingRsv != null) {
+			System.out.println("Reserva esperando");
+			return waitingRsv;
+		} else {
+			for (Reservation reservation : reservations) {
+				System.out.println(
+						"Minutos de diferencia: " + DateUtils.getMinutesDifference(now, reservation.getDate()));
+
+				if (DateUtils.getMinutesDifference(now, reservation.getDate()) <= 5) {
+					return reservation;
+				}
+			}
+		}
+		return null;
+	}
+
 }

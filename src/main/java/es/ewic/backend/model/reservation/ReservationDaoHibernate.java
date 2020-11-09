@@ -59,4 +59,13 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 				.setParameter("waiting", ReservationState.WAITING).list();
 	}
 
+	@Override
+	public List<Reservation> getActiveAndWaitingReservationsByClientAndDay(Calendar date, int idClient) {
+		return getSession().createQuery(
+				"SELECT r FROM Reservation r WHERE r.client.idClient = :idClient AND DATE(r.date) = DATE(:date) AND (r.state = :active OR r.state = :waiting)",
+				Reservation.class).setParameter("idClient", idClient).setParameter("date", date)
+				.setParameter("active", ReservationState.ACTIVE).setParameter("waiting", ReservationState.WAITING)
+				.list();
+	}
+
 }
