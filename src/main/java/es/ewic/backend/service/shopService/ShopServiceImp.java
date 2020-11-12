@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.ewic.backend.model.entry.Entry;
 import es.ewic.backend.model.entry.EntryDao;
+import es.ewic.backend.model.reservation.Reservation;
+import es.ewic.backend.model.reservation.Reservation.ReservationState;
+import es.ewic.backend.model.reservation.ReservationDao;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.model.shop.ShopDao;
@@ -28,6 +31,8 @@ public class ShopServiceImp implements ShopService {
 	private ShopDao shopDao;
 	@Autowired
 	private EntryDao entryDao;
+	@Autowired
+	private ReservationDao reservationDao;
 
 	private void checkShopDuplicate(Shop shop) throws DuplicateInstanceException {
 
@@ -162,13 +167,42 @@ public class ShopServiceImp implements ShopService {
 			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			entryDao.save(entry);
-
 			Shop shop = entry.getShop();
 			shop.setActualCapacity(shop.getActualCapacity() + 1);
 			shopDao.save(shop);
-
 			return entry;
 		}
+	}
+
+	@Override
+	public Entry registerEntryWithReservation(Entry entry, Reservation reservation)
+			throws DuplicateInstanceException, NoAuthorizedException {
+		// Check open shop
+		if (!entry.getShop().isAllowEntries()) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
+		}
+
+		// check if client already entered
+		if (entry.getClient() != null) {
+			try {
+				entryDao.findUncompletedEntry(entry.getClient().getIdClient());
+				throw new NoAuthorizedException(NoAuthorizedOperationsNames.CLIENT_ALREADY_ENTERED,
+						Entry.class.getSimpleName());
+			} catch (InstanceNotFoundException e) {
+				// Entry ok
+			}
+		}
+
+		try {
+			entryDao.find(entry.getIdEntry());
+			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
+		} catch (InstanceNotFoundException e) {
+			entryDao.save(entry);
+			reservation.setState(ReservationState.COMPLETED);
+			reservationDao.save(reservation);
+			return entry;
+		}
+
 	}
 
 	@Override

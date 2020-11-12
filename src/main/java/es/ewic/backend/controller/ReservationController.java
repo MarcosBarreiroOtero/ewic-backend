@@ -144,6 +144,8 @@ public class ReservationController {
 			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (NoAuthorizedException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		}
 	}
 
@@ -210,11 +212,6 @@ public class ReservationController {
 			Seller seller = sellerService.getSellerByLoginName(loginName);
 			Reservation rsv = reservationService.getReservationById(idReservation);
 
-			if (rsv.getState() == ReservationState.CANCELLED) {
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-						NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE);
-			}
-
 			if (rsv.getShop().getSeller().getLoginName().equals(seller.getLoginName())) {
 				reservationService.cancelReservation(idReservation);
 				mailService.sendClientDeleteReservation(rsv);
@@ -223,6 +220,8 @@ public class ReservationController {
 			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (NoAuthorizedException e) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		}
 	}
 

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import es.ewic.backend.model.client.Client;
 import es.ewic.backend.model.entry.Entry;
+import es.ewic.backend.model.reservation.Reservation;
 import es.ewic.backend.model.seller.Seller;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
@@ -27,6 +28,7 @@ import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
+import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.EntryDetails;
 import es.ewic.backend.service.shopService.ShopDetails;
@@ -42,6 +44,8 @@ public class ShopController {
 	private SellerService sellerService;
 	@Autowired
 	private ClientService clientService;
+	@Autowired
+	private ReservationService reservationService;
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopDetails registerShop(@RequestBody ShopDetails shopDetails) {
@@ -132,11 +136,16 @@ public class ShopController {
 			if (idGoogleLogin != null) {
 				client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 			}
-
 			Calendar now = Calendar.getInstance();
 			Entry e = new Entry(now, shop, client);
+			if (client != null) {
+				Reservation reservation = reservationService.getCloseReservationByClient(now, client.getIdClient());
+				if (reservation != null) {
+					shopService.registerEntryWithReservation(e, reservation);
+					return e.getIdEntry();
+				}
+			}
 			shopService.registerEntry(e);
-
 			return e.getIdEntry();
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

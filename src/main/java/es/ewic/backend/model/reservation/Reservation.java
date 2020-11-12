@@ -22,7 +22,7 @@ public class Reservation implements Serializable {
 	private static final long serialVersionUID = -2479774326179655209L;
 
 	public enum ReservationState {
-		ACTIVE(1), COMPLETED(2), CANCELLED(3);
+		ACTIVE(0), WAITING(1), COMPLETED(2), NOT_APPEAR(3), CANCELLED(4);
 
 		private int numVal;
 

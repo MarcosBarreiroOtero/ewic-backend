@@ -2,6 +2,8 @@ package es.ewic.backend.service.reservationService;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,11 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import es.ewic.backend.model.reservation.Reservation;
 import es.ewic.backend.model.reservation.Reservation.ReservationState;
 import es.ewic.backend.model.reservation.ReservationDao;
+import es.ewic.backend.model.shop.Shop;
+import es.ewic.backend.model.shop.ShopDao;
+import es.ewic.backend.modelutil.ConfigurationGlobalNames;
 import es.ewic.backend.modelutil.DateUtils;
 import es.ewic.backend.modelutil.NoAuthorizedOperationsNames;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
+import es.ewic.backend.service.configurationService.ConfigurationService;
 
 @Service("reservationService")
 @Transactional
@@ -22,6 +28,10 @@ public class ReservationServiceImp implements ReservationService {
 
 	@Autowired
 	private ReservationDao reservationDao;
+	@Autowired
+	private ShopDao shopDao;
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -90,11 +100,91 @@ public class ReservationServiceImp implements ReservationService {
 	}
 
 	@Override
-	public void cancelReservation(int idReservation) throws InstanceNotFoundException {
+	public void cancelReservation(int idReservation) throws InstanceNotFoundException, NoAuthorizedException {
 		Reservation rsv = getReservationById(idReservation);
-		rsv.setState(ReservationState.CANCELLED);
-		reservationDao.save(rsv);
-		return;
+
+		if (rsv.getState() == ReservationState.ACTIVE || rsv.getState() == ReservationState.WAITING) {
+			rsv.setState(ReservationState.CANCELLED);
+			reservationDao.save(rsv);
+		} else {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE,
+					Reservation.class.getSimpleName());
+		}
+	}
+
+	@Override
+	public void reservationScheduledTask() {
+		Calendar now = Calendar.getInstance();
+		// Change active reservations to waiting
+		List<Reservation> futureActiveReservations = reservationDao.getFutureActiveReservations(now);
+		Map<Shop, List<Reservation>> reservationGrouped = futureActiveReservations.stream()
+				.collect(Collectors.groupingBy(Reservation::getShop));
+		for (Map.Entry<Shop, List<Reservation>> entry : reservationGrouped.entrySet()) {
+			Shop shop = entry.getKey();
+			List<Reservation> reservations = entry.getValue();
+			int increaseActualCapacity = 0;
+			for (Reservation reservation : reservations) {
+				if (DateUtils.getMinutesDifference(now, reservation.getDate()) <= 1) {
+					System.out.println("Reservation " + reservation.getIdReservation() + " waiting");
+					reservation.setState(ReservationState.WAITING);
+					reservationDao.save(reservation);
+					increaseActualCapacity++;
+				}
+			}
+			shop.setActualCapacity(shop.getActualCapacity() + increaseActualCapacity);
+			shopDao.save(shop);
+		}
+		// Change waiting to not appear
+
+		List<Reservation> waitingReservations = reservationDao.getWaitingReservations();
+		Map<Shop, List<Reservation>> waitingReservationsGrouped = waitingReservations.stream()
+				.collect(Collectors.groupingBy(Reservation::getShop));
+		for (Map.Entry<Shop, List<Reservation>> entry : waitingReservationsGrouped.entrySet()) {
+			Shop shop = entry.getKey();
+			List<Reservation> reservations = entry.getValue();
+
+			int minutesWaiting = 10;
+			String shopWaitingMinutes = configurationService.readControlParameterByNameAndShop(
+					ConfigurationGlobalNames.RESERVATION_WAIT_MINUTES, shop.getIdShop());
+			if (!shopWaitingMinutes.equals("")) {
+				minutesWaiting = Integer.parseInt(shopWaitingMinutes);
+			}
+			int reduceActualCapacity = 0;
+			for (Reservation reservation : reservations) {
+				Calendar rsvDate = (Calendar) reservation.getDate().clone();
+				rsvDate.add(Calendar.MINUTE, minutesWaiting);
+				if (rsvDate.before(now)) {
+					System.out.println("Reservation " + reservation.getIdReservation() + " not appear");
+					reservation.setState(ReservationState.NOT_APPEAR);
+					reservationDao.save(reservation);
+					reduceActualCapacity++;
+				}
+			}
+			shop.setActualCapacity(shop.getActualCapacity() - reduceActualCapacity);
+		}
+	}
+
+	@Override
+	public Reservation getCloseReservationByClient(Calendar now, int idClient) {
+
+		List<Reservation> reservations = reservationDao.getActiveAndWaitingReservationsByClientAndDay(now, idClient);
+		System.out.println(reservations.size());
+		Reservation waitingRsv = reservations.stream().filter(r -> r.getState() == ReservationState.WAITING).findFirst()
+				.orElse(null);
+		if (waitingRsv != null) {
+			System.out.println("Reserva esperando");
+			return waitingRsv;
+		} else {
+			for (Reservation reservation : reservations) {
+				System.out.println(
+						"Minutos de diferencia: " + DateUtils.getMinutesDifference(now, reservation.getDate()));
+
+				if (DateUtils.getMinutesDifference(now, reservation.getDate()) <= 5) {
+					return reservation;
+				}
+			}
+		}
+		return null;
 	}
 
 }

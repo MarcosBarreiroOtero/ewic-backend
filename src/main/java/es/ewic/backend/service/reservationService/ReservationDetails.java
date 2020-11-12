@@ -13,10 +13,9 @@ public class ReservationDetails {
 	public String idGoogleLoginClient;
 	public int idShop;
 
-	public ReservationDetails(String date, ReservationState state, String remarks, String idGoogleLoginClient,
-			int idShop) {
+	public ReservationDetails(String date, String remarks, String idGoogleLoginClient, int idShop) {
 		this.date = date;
-		this.state = state;
+		this.state = ReservationState.ACTIVE;
 		this.remarks = remarks;
 		this.idGoogleLoginClient = idGoogleLoginClient;
 		this.idShop = idShop;
