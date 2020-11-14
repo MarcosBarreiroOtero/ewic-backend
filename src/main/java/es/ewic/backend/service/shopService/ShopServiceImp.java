@@ -103,18 +103,20 @@ public class ShopServiceImp implements ShopService {
 
 		List<Shop> shops = shopDao.getShopsByFilters(name, type);
 
-		// Order shops by distance in meters.
-		shops.sort(new Comparator<Shop>() {
-			@Override
-			public int compare(Shop o1, Shop o2) {
-				if (distFrom(latitude, longitude, o1.getLatitude(), o1.getLongitude()) > distFrom(latitude, longitude,
-						o2.getLatitude(), o2.getLongitude())) {
-					return 1;
-				} else {
-					return -1;
+		if (latitude != null && longitude != null) {
+			// Order shops by distance in meters.
+			shops.sort(new Comparator<Shop>() {
+				@Override
+				public int compare(Shop o1, Shop o2) {
+					if (distFrom(latitude, longitude, o1.getLatitude(), o1.getLongitude()) > distFrom(latitude,
+							longitude, o2.getLatitude(), o2.getLongitude())) {
+						return 1;
+					} else {
+						return -1;
+					}
 				}
-			}
-		});
+			});
+		}
 
 		return shops;
 	}
