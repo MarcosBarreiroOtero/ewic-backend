@@ -13,6 +13,7 @@ public class ShopDetails {
 	private int maxCapacity;
 	private int actualCapacity;
 	private ShopType type;
+	private boolean allowEntries;
 	private int idSeller;
 
 	public ShopDetails(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
@@ -34,6 +35,7 @@ public class ShopDetails {
 		this.location = shop.getLocation();
 		this.maxCapacity = shop.getMaxCapacity();
 		this.actualCapacity = shop.getActualCapacity();
+		this.allowEntries = shop.isAllowEntries();
 		this.type = shop.getType();
 		this.idSeller = shop.getSeller().getIdSeller();
 	}
@@ -64,6 +66,14 @@ public class ShopDetails {
 
 	public int getActualCapacity() {
 		return actualCapacity;
+	}
+
+	public boolean isAllowEntries() {
+		return allowEntries;
+	}
+
+	public void setAllowEntries(boolean allowEntries) {
+		this.allowEntries = allowEntries;
 	}
 
 	public ShopType getType() {
