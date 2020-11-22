@@ -6,12 +6,12 @@ import es.ewic.backend.modelutil.DateUtils;
 
 public class ReservationDetails {
 
-	public int idReservation;
-	public String date;
-	public ReservationState state;
-	public String remarks;
-	public String idGoogleLoginClient;
-	public int idShop;
+	private int idReservation;
+	private String date;
+	private ReservationState state;
+	private String remarks;
+	private String idGoogleLoginClient;
+	private int idShop;
 
 	public ReservationDetails(String date, String remarks, String idGoogleLoginClient, int idShop) {
 		this.date = date;
@@ -28,6 +28,10 @@ public class ReservationDetails {
 		this.remarks = reservation.getRemarks();
 		this.idGoogleLoginClient = reservation.getClient().getIdGoogleLogin();
 		this.idShop = reservation.getShop().getIdShop();
+	}
+
+	public int getIdReservation() {
+		return idReservation;
 	}
 
 	public String getDate() {
