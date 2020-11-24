@@ -12,6 +12,7 @@ public class ReservationDetails {
 	private String remarks;
 	private String idGoogleLoginClient;
 	private int idShop;
+	private String shopName;
 
 	public ReservationDetails(String date, String remarks, String idGoogleLoginClient, int idShop) {
 		this.date = date;
@@ -28,6 +29,7 @@ public class ReservationDetails {
 		this.remarks = reservation.getRemarks();
 		this.idGoogleLoginClient = reservation.getClient().getIdGoogleLogin();
 		this.idShop = reservation.getShop().getIdShop();
+		this.shopName = reservation.getShop().getName();
 	}
 
 	public int getIdReservation() {
@@ -57,4 +59,9 @@ public class ReservationDetails {
 	public int getIdShop() {
 		return idShop;
 	}
+
+	public String getShopName() {
+		return shopName;
+	}
+
 }
