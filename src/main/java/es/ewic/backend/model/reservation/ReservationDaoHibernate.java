@@ -16,7 +16,8 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 	@Override
 	public List<Reservation> findAllByClientId(int idClient) {
 		return getSession()
-				.createQuery("SELECT r FROM Reservation r WHERE r.client.idClient = :idClient", Reservation.class)
+				.createQuery("SELECT r FROM Reservation r WHERE r.client.idClient = :idClient ORDER BY r.date DESC",
+						Reservation.class)
 				.setParameter("idClient", idClient).list();
 	}
 

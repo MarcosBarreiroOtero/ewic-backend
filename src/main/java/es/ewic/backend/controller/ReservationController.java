@@ -126,7 +126,6 @@ public class ReservationController {
 	@DeleteMapping(path = "/client/{id}")
 	public void deleteReservationClient(@PathVariable("id") int idReservation,
 			@RequestParam(required = true, name = "idGoogleLogin") String idGoogleLogin) {
-
 		try {
 			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 			Reservation rsv = reservationService.getReservationById(idReservation);

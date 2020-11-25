@@ -104,8 +104,16 @@ public class ReservationServiceImp implements ReservationService {
 		Reservation rsv = getReservationById(idReservation);
 
 		if (rsv.getState() == ReservationState.ACTIVE || rsv.getState() == ReservationState.WAITING) {
+
+			if (rsv.getState() == ReservationState.WAITING) {
+				Shop shop = rsv.getShop();
+				shop.setActualCapacity(shop.getActualCapacity() - 1);
+				shopDao.save(shop);
+			}
+
 			rsv.setState(ReservationState.CANCELLED);
 			reservationDao.save(rsv);
+
 		} else {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE,
 					Reservation.class.getSimpleName());
