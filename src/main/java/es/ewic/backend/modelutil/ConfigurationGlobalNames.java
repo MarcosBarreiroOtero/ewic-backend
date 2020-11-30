@@ -2,13 +2,16 @@ package es.ewic.backend.modelutil;
 
 public class ConfigurationGlobalNames {
 
+	private ConfigurationGlobalNames() {
+	}
+
 	// Mail params
-	public static String MAIL_HOST = "mailHost";
-	public static String MAIL_PORT = "mailPort";
-	public static String MAIL_USERNAME = "mailUsername";
-	public static String MAIL_PASSWORD = "mailPassword";
+	public static final String MAIL_HOST = "mailHost";
+	public static final String MAIL_PORT = "mailPort";
+	public static final String MAIL_USERNAME = "mailUsername";
+	public static final String MAIL_PASSWORD = "mailPassword";
 
 	// Reservation params
-	public static String RESERVATION_WAIT_MINUTES = "reservationWaitMinutes";
+	public static final String RESERVATION_WAIT_MINUTES = "reservationWaitMinutes";
 
 }

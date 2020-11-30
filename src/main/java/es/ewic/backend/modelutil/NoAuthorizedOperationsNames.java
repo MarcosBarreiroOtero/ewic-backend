@@ -2,6 +2,9 @@ package es.ewic.backend.modelutil;
 
 public class NoAuthorizedOperationsNames {
 
+	private NoAuthorizedOperationsNames() {
+	}
+
 	// SHOP
 	public static final String MAX_CAPACITY_INVALID = "Max capacity less than 0";
 

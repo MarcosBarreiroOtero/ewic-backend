@@ -39,8 +39,7 @@ public class DataBaseConfiguration {
 
 	@Bean
 	public DataSource lazyDataSource() {
-		LazyConnectionDataSourceProxy dataSource = new LazyConnectionDataSourceProxy(dataSource());
-		return dataSource;
+		return new LazyConnectionDataSourceProxy(dataSource());
 	}
 
 	public Properties hibernateProperties() {

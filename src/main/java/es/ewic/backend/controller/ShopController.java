@@ -109,7 +109,7 @@ public class ShopController {
 	}
 
 	@PutMapping(path = "/{id}/open")
-	private void shopStartCapacityControl(@PathVariable("id") int idShop) {
+	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.startCapacityControl(idShop);
 		} catch (InstanceNotFoundException e) {
@@ -118,7 +118,7 @@ public class ShopController {
 	}
 
 	@PutMapping(path = "/{id}/close")
-	private void shopEndCapacityControl(@PathVariable("id") int idShop) {
+	public void shopEndCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.endCapacityControl(idShop);
 		} catch (InstanceNotFoundException e) {

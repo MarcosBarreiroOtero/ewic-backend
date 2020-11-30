@@ -38,8 +38,7 @@ public class ClientController {
 	@PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Client loginClient(@RequestBody Client client) {
 		try {
-			Client c = clientService.getClientByIdGoogleLogin(client.getIdGoogleLogin());
-			return c;
+			return clientService.getClientByIdGoogleLogin(client.getIdGoogleLogin());
 		} catch (InstanceNotFoundException e) {
 			try {
 				return clientService.saveOrUpdateClient(client);

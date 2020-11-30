@@ -48,9 +48,7 @@ public class ShopServiceImp implements ShopService {
 		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
 				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		float dist = (float) (earthRadius * c);
-
-		return dist;
+		return (float) (earthRadius * c);
 	}
 
 	private Entry endEntry(Entry e) {
@@ -221,7 +219,7 @@ public class ShopServiceImp implements ShopService {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
 		}
 
-		e = endEntry(e);
+		endEntry(e);
 
 		Shop shop = e.getShop();
 		shop.setActualCapacity(shop.getActualCapacity() - 1);
