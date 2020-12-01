@@ -11,6 +11,7 @@ import es.ewic.backend.service.configurationService.ControlParameterDetails;
 import es.ewic.backend.service.reservationService.ReservationDetails;
 import es.ewic.backend.service.shopService.EntryDetails;
 import es.ewic.backend.service.shopService.ShopDetails;
+import es.ewic.backend.service.shopService.ShopName;
 
 public class TransformationUtils {
 
@@ -34,6 +35,14 @@ public class TransformationUtils {
 			shopDetails.add(new ShopDetails(shop));
 		}
 		return shopDetails;
+	}
+
+	public static List<ShopName> shopsToShopName(List<Shop> shops) {
+		List<ShopName> shopNames = new ArrayList<>();
+		for (Shop shop : shops) {
+			shopNames.add(new ShopName(shop));
+		}
+		return shopNames;
 	}
 
 	// Control parameters

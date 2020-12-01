@@ -32,6 +32,7 @@ import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.EntryDetails;
 import es.ewic.backend.service.shopService.ShopDetails;
+import es.ewic.backend.service.shopService.ShopName;
 import es.ewic.backend.service.shopService.ShopService;
 
 @RestController
@@ -96,6 +97,11 @@ public class ShopController {
 	@GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopType[] getShopTypes() {
 		return ShopType.values();
+	}
+
+	@GetMapping(path = "/names", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ShopName> getShopNames() {
+		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(null, null, null, null));
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
