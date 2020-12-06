@@ -19,7 +19,8 @@ public class Shop implements Serializable {
 	private static final long serialVersionUID = -6896714588922492560L;
 
 	public enum ShopType {
-		OTHER(1), SUPERMARKET(2), PHAMARCY(3), FRUIT_STORE(4);
+		OTHER(1), SUPERMARKET(2), PHARMACY(3), FRUIT_STORE(4), RESTAURANT(5), BAR(6), BOOK_STORE(7), HAIRDRESSER(8),
+		HARDWARE_STORE(9), BUTCHER_SHOP(10), FISH_SHOP(11), BAKERY(12);
 
 		private int numVal;
 
