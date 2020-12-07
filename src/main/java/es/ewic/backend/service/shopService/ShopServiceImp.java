@@ -86,6 +86,7 @@ public class ShopServiceImp implements ShopService {
 			s.setMaxCapacity(shop.getMaxCapacity());
 			s.setLocation(shop.getLocation());
 			s.setType(shop.getType());
+			s.setTimetable(shop.getTimetable());
 
 			return s;
 

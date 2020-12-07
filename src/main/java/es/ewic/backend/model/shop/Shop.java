@@ -42,6 +42,7 @@ public class Shop implements Serializable {
 	private int actualCapacity;
 	private boolean allowEntries;
 	private ShopType type;
+	private String timetable;
 
 	private Seller seller;
 
@@ -50,7 +51,7 @@ public class Shop implements Serializable {
 	}
 
 	public Shop(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
-			Seller seller) {
+			String timetable, Seller seller) {
 		this.name = name;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -59,6 +60,7 @@ public class Shop implements Serializable {
 		this.actualCapacity = 0;
 		this.allowEntries = false;
 		this.type = type;
+		this.timetable = timetable;
 		this.seller = seller;
 	}
 
@@ -71,6 +73,7 @@ public class Shop implements Serializable {
 		this.actualCapacity = 0;
 		this.allowEntries = false;
 		this.type = details.getType();
+		this.timetable = details.getTimetable();
 		this.seller = seller;
 	}
 
@@ -146,6 +149,14 @@ public class Shop implements Serializable {
 
 	public void setType(ShopType type) {
 		this.type = type;
+	}
+
+	public String getTimetable() {
+		return timetable;
+	}
+
+	public void setTimetable(String timetable) {
+		this.timetable = timetable;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

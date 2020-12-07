@@ -15,9 +15,10 @@ public class ShopDetails {
 	private ShopType type;
 	private boolean allowEntries;
 	private int idSeller;
+	private String timetable;
 
 	public ShopDetails(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
-			int idSeller) {
+			int idSeller, String timetable) {
 		this.name = name;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -25,6 +26,7 @@ public class ShopDetails {
 		this.maxCapacity = maxCapacity;
 		this.type = type;
 		this.idSeller = idSeller;
+		this.timetable = timetable;
 	}
 
 	public ShopDetails(Shop shop) {
@@ -38,6 +40,7 @@ public class ShopDetails {
 		this.allowEntries = shop.isAllowEntries();
 		this.type = shop.getType();
 		this.idSeller = shop.getSeller().getIdSeller();
+		this.timetable = shop.getTimetable();
 	}
 
 	public int getIdShop() {
@@ -82,6 +85,10 @@ public class ShopDetails {
 
 	public int getIdSeller() {
 		return idSeller;
+	}
+
+	public String getTimetable() {
+		return timetable;
 	}
 
 }

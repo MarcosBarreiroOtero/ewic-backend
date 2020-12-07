@@ -79,6 +79,7 @@ public class ShopController {
 				shop.setMaxCapacity(shopDetails.getMaxCapacity());
 				shop.setLocation(shopDetails.getLocation());
 				shop.setType(shopDetails.getType());
+				shop.setTimetable(shopDetails.getTimetable());
 				shopService.saveOrUpdateShop(shop);
 				return new ShopDetails(shop);
 			} else {
