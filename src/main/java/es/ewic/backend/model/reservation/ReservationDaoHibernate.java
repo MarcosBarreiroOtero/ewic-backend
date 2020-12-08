@@ -69,4 +69,11 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 				.list();
 	}
 
+	@Override
+	public List<Reservation> getReservationsByShopAndDate(Calendar date, int idShop) {
+		return getSession().createQuery(
+				"SELECT r FROM Reservation r WHERE r.shop.idShop = :idShop AND TIMESTAMP(r.date) = TIMESTAMP(:date)",
+				Reservation.class).setParameter("idShop", idShop).setParameter("date", date).list();
+	}
+
 }

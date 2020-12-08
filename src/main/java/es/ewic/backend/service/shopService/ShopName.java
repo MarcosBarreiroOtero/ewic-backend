@@ -6,15 +6,18 @@ public class ShopName {
 
 	private int idShop;
 	private String name;
+	private String timetable;
 
-	public ShopName(int idShop, String name) {
+	public ShopName(int idShop, String name, String timetable) {
 		this.idShop = idShop;
 		this.name = name;
+		this.timetable = timetable;
 	}
 
 	public ShopName(Shop shop) {
 		this.idShop = shop.getIdShop();
 		this.name = shop.getName();
+		this.timetable = shop.getTimetable();
 	}
 
 	public int getIdShop() {
@@ -23,6 +26,10 @@ public class ShopName {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getTimetable() {
+		return timetable;
 	}
 
 }

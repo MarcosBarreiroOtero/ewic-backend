@@ -60,6 +60,7 @@ public class ReservationServiceImp implements ReservationService {
 
 			if (!DateUtils.compareDaysByGet(rsv.getDate(), reservation.getDate())) {
 				checkReservationDuplicate(reservation);
+				checkShopFull(reservation.getShop(), reservation.getDate());
 			}
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
@@ -72,7 +73,7 @@ public class ReservationServiceImp implements ReservationService {
 
 		} catch (InstanceNotFoundException e) {
 			checkReservationDuplicate(reservation);
-
+			checkShopFull(reservation.getShop(), reservation.getDate());
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
 						Reservation.class.getSimpleName());
@@ -90,6 +91,15 @@ public class ReservationServiceImp implements ReservationService {
 					Reservation.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			// no duplicate
+		}
+	}
+
+	private void checkShopFull(Shop shop, Calendar date) throws NoAuthorizedException {
+		List<Reservation> reservations = reservationDao.getReservationsByShopAndDate(date, shop.getIdShop());
+		System.out.println("Número de reservas" + reservations.size());
+		if (reservations.size() >= shop.getMaxCapacity()) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_WHEN_SHOP_FULL,
+					Reservation.class.getSimpleName());
 		}
 	}
 

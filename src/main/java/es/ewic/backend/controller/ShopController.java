@@ -105,6 +105,16 @@ public class ShopController {
 		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(null, null, null, null));
 	}
 
+	@GetMapping(path = "/timetable/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getShopTimetable(@PathVariable("idShop") int idShop) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			return shop.getTimetable();
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ShopDetails> getShopsByFilters(@RequestParam(required = false) Float latitude,
 			@RequestParam(required = false) Float longitude, @RequestParam(required = false) String name,
