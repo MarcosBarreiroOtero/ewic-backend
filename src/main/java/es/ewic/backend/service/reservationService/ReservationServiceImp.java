@@ -96,7 +96,6 @@ public class ReservationServiceImp implements ReservationService {
 
 	private void checkShopFull(Shop shop, Calendar date) throws NoAuthorizedException {
 		List<Reservation> reservations = reservationDao.getReservationsByShopAndDate(date, shop.getIdShop());
-		System.out.println("Número de reservas" + reservations.size());
 		if (reservations.size() >= shop.getMaxCapacity()) {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_WHEN_SHOP_FULL,
 					Reservation.class.getSimpleName());
