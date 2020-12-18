@@ -8,8 +8,11 @@ import java.util.GregorianCalendar;
 
 public class DateUtils {
 
-	public static SimpleDateFormat sdfLong = new SimpleDateFormat("HH:mm dd/MM/yyyy");
-	public static SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+	private DateUtils() {
+	}
+
+	public static final SimpleDateFormat sdfLong = new SimpleDateFormat("HH:mm dd/MM/yyyy");
+	public static final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
 
 	/**
 	 * Method to parse string in sdfLong format to date
@@ -119,10 +122,9 @@ public class DateUtils {
 	 *         between dates is before or after; for that, use compareDays method.
 	 */
 	public static boolean compareDaysByGet(Calendar date1, Calendar date2) {
-		boolean isEqual = date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR)
+		return date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR)
 				&& date1.get(Calendar.MONTH) == date2.get(Calendar.MONTH)
 				&& date1.get(Calendar.DATE) == date2.get(Calendar.DATE);
-		return isEqual;
 	}
 
 	/**
@@ -137,12 +139,11 @@ public class DateUtils {
 	 *         between dates is before or after; for that, use compareDays method.
 	 */
 	public static boolean compareDatesExtensiveByGet(Calendar date1, Calendar date2) {
-		boolean isEqual = date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR)
+		return date1.get(Calendar.YEAR) == date2.get(Calendar.YEAR)
 				&& date1.get(Calendar.MONTH) == date2.get(Calendar.MONTH)
 				&& date1.get(Calendar.DATE) == date2.get(Calendar.DATE)
 				&& date1.get(Calendar.HOUR_OF_DAY) == date2.get(Calendar.HOUR_OF_DAY)
 				&& date1.get(Calendar.MINUTE) == date2.get(Calendar.MINUTE);
-		return isEqual;
 	}
 
 	/**

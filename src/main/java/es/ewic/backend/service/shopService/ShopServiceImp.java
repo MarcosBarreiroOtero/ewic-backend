@@ -48,9 +48,7 @@ public class ShopServiceImp implements ShopService {
 		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1))
 				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		float dist = (float) (earthRadius * c);
-
-		return dist;
+		return (float) (earthRadius * c);
 	}
 
 	private Entry endEntry(Entry e) {
@@ -88,6 +86,7 @@ public class ShopServiceImp implements ShopService {
 			s.setMaxCapacity(shop.getMaxCapacity());
 			s.setLocation(shop.getLocation());
 			s.setType(shop.getType());
+			s.setTimetable(shop.getTimetable());
 
 			return s;
 
@@ -103,18 +102,20 @@ public class ShopServiceImp implements ShopService {
 
 		List<Shop> shops = shopDao.getShopsByFilters(name, type);
 
-		// Order shops by distance in meters.
-		shops.sort(new Comparator<Shop>() {
-			@Override
-			public int compare(Shop o1, Shop o2) {
-				if (distFrom(latitude, longitude, o1.getLatitude(), o1.getLongitude()) > distFrom(latitude, longitude,
-						o2.getLatitude(), o2.getLongitude())) {
-					return 1;
-				} else {
-					return -1;
+		if (latitude != null && longitude != null) {
+			// Order shops by distance in meters.
+			shops.sort(new Comparator<Shop>() {
+				@Override
+				public int compare(Shop o1, Shop o2) {
+					if (distFrom(latitude, longitude, o1.getLatitude(), o1.getLongitude()) > distFrom(latitude,
+							longitude, o2.getLatitude(), o2.getLongitude())) {
+						return 1;
+					} else {
+						return -1;
+					}
 				}
-			}
-		});
+			});
+		}
 
 		return shops;
 	}
@@ -219,7 +220,7 @@ public class ShopServiceImp implements ShopService {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.SHOP_NOT_OPENED, Entry.class.getSimpleName());
 		}
 
-		e = endEntry(e);
+		endEntry(e);
 
 		Shop shop = e.getShop();
 		shop.setActualCapacity(shop.getActualCapacity() - 1);

@@ -31,7 +31,7 @@ public class ShopDaoHibernate extends GenericDaoHibernate<Shop, Integer> impleme
 		}
 
 		if (type != null) {
-			where = where += (where.isEmpty() ? " WHERE " : " AND ") + " s.type = :type ";
+			where += (where.isEmpty() ? " WHERE " : " AND ") + " s.type = :type ";
 		}
 
 		Query<Shop> q = getSession().createQuery("SELECT s FROM Shop s " + where, Shop.class);

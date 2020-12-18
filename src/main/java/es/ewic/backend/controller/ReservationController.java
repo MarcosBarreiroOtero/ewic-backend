@@ -49,13 +49,15 @@ public class ReservationController {
 	@Autowired
 	private MailService mailService;
 
+	private static final String INVALID_DATE = "Invalid date";
+
 	private Reservation saveNewReservation(ReservationDetails reservationDetails)
 			throws InstanceNotFoundException, DuplicateInstanceException, NoAuthorizedException {
 		Client client = clientService.getClientByIdGoogleLogin(reservationDetails.getIdGoogleLoginClient());
 		Shop shop = shopService.getShopById(reservationDetails.getIdShop());
 		Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
 		if (rsvDate == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_DATE);
 		}
 		Reservation rsv = new Reservation(rsvDate, reservationDetails.getState(), reservationDetails.getRemarks(),
 				client, shop);
@@ -72,7 +74,7 @@ public class ReservationController {
 
 			Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
 			if (rsvDate == null) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_DATE);
 			}
 			reservation.setDate(rsvDate);
 			reservation.setRemarks(reservationDetails.getRemarks());
@@ -126,7 +128,6 @@ public class ReservationController {
 	@DeleteMapping(path = "/client/{id}")
 	public void deleteReservationClient(@PathVariable("id") int idReservation,
 			@RequestParam(required = true, name = "idGoogleLogin") String idGoogleLogin) {
-
 		try {
 			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 			Reservation rsv = reservationService.getReservationById(idReservation);
@@ -180,14 +181,12 @@ public class ReservationController {
 				Calendar oldDate = (Calendar) reservation.getDate().clone();
 				Calendar rsvDate = DateUtils.parseDateLong(reservationDetails.getDate());
 				if (rsvDate == null) {
-					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_DATE);
 				}
 				reservation.setDate(rsvDate);
 				reservation.setRemarks(reservationDetails.getRemarks());
 
 				reservationService.saveOrUpdateReservation(reservation);
-				System.out.println(oldDate.getTime().toString());
-				System.out.println(rsvDate.getTime().toString());
 				if (!DateUtils.compareDatesExtensiveByGet(oldDate, rsvDate)) {
 					mailService.sendClientUpdateReservation(reservation, oldDate);
 				}

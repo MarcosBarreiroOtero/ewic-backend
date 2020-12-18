@@ -60,6 +60,7 @@ public class ReservationServiceImp implements ReservationService {
 
 			if (!DateUtils.compareDaysByGet(rsv.getDate(), reservation.getDate())) {
 				checkReservationDuplicate(reservation);
+				checkShopFull(reservation.getShop(), reservation.getDate());
 			}
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
@@ -72,7 +73,7 @@ public class ReservationServiceImp implements ReservationService {
 
 		} catch (InstanceNotFoundException e) {
 			checkReservationDuplicate(reservation);
-
+			checkShopFull(reservation.getShop(), reservation.getDate());
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
 						Reservation.class.getSimpleName());
@@ -93,6 +94,14 @@ public class ReservationServiceImp implements ReservationService {
 		}
 	}
 
+	private void checkShopFull(Shop shop, Calendar date) throws NoAuthorizedException {
+		List<Reservation> reservations = reservationDao.getReservationsByShopAndDate(date, shop.getIdShop());
+		if (reservations.size() >= shop.getMaxCapacity()) {
+			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_WHEN_SHOP_FULL,
+					Reservation.class.getSimpleName());
+		}
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<Reservation> getReservationsByIdClient(int idClient) {
@@ -104,8 +113,16 @@ public class ReservationServiceImp implements ReservationService {
 		Reservation rsv = getReservationById(idReservation);
 
 		if (rsv.getState() == ReservationState.ACTIVE || rsv.getState() == ReservationState.WAITING) {
+
+			if (rsv.getState() == ReservationState.WAITING) {
+				Shop shop = rsv.getShop();
+				shop.setActualCapacity(shop.getActualCapacity() - 1);
+				shopDao.save(shop);
+			}
+
 			rsv.setState(ReservationState.CANCELLED);
 			reservationDao.save(rsv);
+
 		} else {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_NOT_MUTABLE,
 					Reservation.class.getSimpleName());

@@ -16,7 +16,8 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 	@Override
 	public List<Reservation> findAllByClientId(int idClient) {
 		return getSession()
-				.createQuery("SELECT r FROM Reservation r WHERE r.client.idClient = :idClient", Reservation.class)
+				.createQuery("SELECT r FROM Reservation r WHERE r.client.idClient = :idClient ORDER BY r.date DESC",
+						Reservation.class)
 				.setParameter("idClient", idClient).list();
 	}
 
@@ -66,6 +67,13 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 				Reservation.class).setParameter("idClient", idClient).setParameter("date", date)
 				.setParameter("active", ReservationState.ACTIVE).setParameter("waiting", ReservationState.WAITING)
 				.list();
+	}
+
+	@Override
+	public List<Reservation> getReservationsByShopAndDate(Calendar date, int idShop) {
+		return getSession().createQuery(
+				"SELECT r FROM Reservation r WHERE r.shop.idShop = :idShop AND TIMESTAMP(r.date) = TIMESTAMP(:date)",
+				Reservation.class).setParameter("idShop", idShop).setParameter("date", date).list();
 	}
 
 }

@@ -32,6 +32,7 @@ import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.EntryDetails;
 import es.ewic.backend.service.shopService.ShopDetails;
+import es.ewic.backend.service.shopService.ShopName;
 import es.ewic.backend.service.shopService.ShopService;
 
 @RestController
@@ -78,6 +79,7 @@ public class ShopController {
 				shop.setMaxCapacity(shopDetails.getMaxCapacity());
 				shop.setLocation(shopDetails.getLocation());
 				shop.setType(shopDetails.getType());
+				shop.setTimetable(shopDetails.getTimetable());
 				shopService.saveOrUpdateShop(shop);
 				return new ShopDetails(shop);
 			} else {
@@ -98,6 +100,21 @@ public class ShopController {
 		return ShopType.values();
 	}
 
+	@GetMapping(path = "/names", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ShopName> getShopNames() {
+		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(null, null, null, null));
+	}
+
+	@GetMapping(path = "/timetable/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public String getShopTimetable(@PathVariable("idShop") int idShop) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			return shop.getTimetable();
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ShopDetails> getShopsByFilters(@RequestParam(required = false) Float latitude,
 			@RequestParam(required = false) Float longitude, @RequestParam(required = false) String name,
@@ -109,7 +126,7 @@ public class ShopController {
 	}
 
 	@PutMapping(path = "/{id}/open")
-	private void shopStartCapacityControl(@PathVariable("id") int idShop) {
+	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.startCapacityControl(idShop);
 		} catch (InstanceNotFoundException e) {
@@ -118,7 +135,7 @@ public class ShopController {
 	}
 
 	@PutMapping(path = "/{id}/close")
-	private void shopEndCapacityControl(@PathVariable("id") int idShop) {
+	public void shopEndCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.endCapacityControl(idShop);
 		} catch (InstanceNotFoundException e) {

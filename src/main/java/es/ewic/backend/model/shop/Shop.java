@@ -19,7 +19,8 @@ public class Shop implements Serializable {
 	private static final long serialVersionUID = -6896714588922492560L;
 
 	public enum ShopType {
-		OTHER(1), SUPERMARKET(2), PHAMARCY(3), FRUIT_STORE(4);
+		OTHER(0), SUPERMARKET(1), PHARMACY(2), FRUIT_STORE(3), RESTAURANT(4), BAR(5), BOOK_STORE(6), HAIRDRESSER(7),
+		HARDWARE_STORE(8), BUTCHER_SHOP(9), FISH_SHOP(10), BAKERY(11);
 
 		private int numVal;
 
@@ -41,6 +42,7 @@ public class Shop implements Serializable {
 	private int actualCapacity;
 	private boolean allowEntries;
 	private ShopType type;
+	private String timetable;
 
 	private Seller seller;
 
@@ -49,7 +51,7 @@ public class Shop implements Serializable {
 	}
 
 	public Shop(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
-			Seller seller) {
+			String timetable, Seller seller) {
 		this.name = name;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -58,6 +60,7 @@ public class Shop implements Serializable {
 		this.actualCapacity = 0;
 		this.allowEntries = false;
 		this.type = type;
+		this.timetable = timetable;
 		this.seller = seller;
 	}
 
@@ -70,6 +73,7 @@ public class Shop implements Serializable {
 		this.actualCapacity = 0;
 		this.allowEntries = false;
 		this.type = details.getType();
+		this.timetable = details.getTimetable();
 		this.seller = seller;
 	}
 
@@ -145,6 +149,14 @@ public class Shop implements Serializable {
 
 	public void setType(ShopType type) {
 		this.type = type;
+	}
+
+	public String getTimetable() {
+		return timetable;
+	}
+
+	public void setTimetable(String timetable) {
+		this.timetable = timetable;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)
