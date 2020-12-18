@@ -42,7 +42,6 @@ public class SellerController {
 
 	@GetMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SellerDetails loginSeller(@RequestParam String loginName, @RequestParam String password) {
-
 		try {
 			return new SellerDetails(sellerService.login(loginName, password));
 		} catch (InstanceNotFoundException e) {
