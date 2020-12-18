@@ -121,6 +121,11 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
+	public List<Shop> getShopsByIdSeller(int idSeller) {
+		return shopDao.getShopsByIdSeller(idSeller);
+	}
+
+	@Override
 	public void startCapacityControl(int idShop) throws InstanceNotFoundException {
 		Shop shop = shopDao.find(idShop);
 		shop.setAllowEntries(true);

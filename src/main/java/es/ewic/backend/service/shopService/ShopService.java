@@ -20,6 +20,8 @@ public interface ShopService {
 
 	List<Shop> getShopsByFilters(String name, ShopType type, Float latitude, Float longitude);
 
+	List<Shop> getShopsByIdSeller(int idSeller);
+
 	void startCapacityControl(int idShop) throws InstanceNotFoundException;
 
 	void endCapacityControl(int idShop) throws InstanceNotFoundException;

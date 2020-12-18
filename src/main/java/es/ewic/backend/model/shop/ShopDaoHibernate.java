@@ -47,4 +47,10 @@ public class ShopDaoHibernate extends GenericDaoHibernate<Shop, Integer> impleme
 		return q.list();
 	}
 
+	@Override
+	public List<Shop> getShopsByIdSeller(int idSeller) {
+		return getSession().createQuery("SELECT s FROM Shop s WHERE s.seller.idSeller = :idSeller", Shop.class)
+				.setParameter("idSeller", idSeller).list();
+	}
+
 }

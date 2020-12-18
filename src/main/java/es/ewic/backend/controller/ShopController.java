@@ -125,6 +125,16 @@ public class ShopController {
 
 	}
 
+	@GetMapping(path = "/seller/{idSeller}")
+	public List<ShopDetails> getShopsOfSeller(@PathVariable("idSeller") int idSeller) {
+		try {
+			Seller seller = sellerService.getSellerById(idSeller);
+			return TransformationUtils.shopsToShopDetails(shopService.getShopsByIdSeller(seller.getIdSeller()));
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@PutMapping(path = "/{id}/open")
 	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {

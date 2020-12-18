@@ -11,4 +11,6 @@ public interface ShopDao extends GenericDao<Shop, Integer> {
 
 	List<Shop> getShopsByFilters(String name, ShopType type);
 
+	List<Shop> getShopsByIdSeller(int idSeller);
+
 }
