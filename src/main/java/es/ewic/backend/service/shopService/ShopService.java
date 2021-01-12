@@ -27,6 +27,8 @@ public interface ShopService {
 	void endCapacityControl(int idShop) throws InstanceNotFoundException;
 
 	// Entries
+	Entry getEntryById(int idEntry) throws InstanceNotFoundException;
+
 	Entry registerEntry(Entry entry) throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException;
 
 	Entry registerEntryWithReservation(Entry entry, Reservation reservation)

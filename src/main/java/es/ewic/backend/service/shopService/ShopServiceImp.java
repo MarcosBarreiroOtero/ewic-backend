@@ -146,6 +146,12 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public Entry getEntryById(int idEntry) throws InstanceNotFoundException {
+		return entryDao.find(idEntry);
+	}
+
+	@Override
 	public Entry registerEntry(Entry entry)
 			throws DuplicateInstanceException, NoAuthorizedException, MaxCapacityException {
 		// Check open shop
@@ -161,16 +167,18 @@ public class ShopServiceImp implements ShopService {
 		// check if client already entered
 		if (entry.getClient() != null) {
 			try {
-				entryDao.findUncompletedEntry(entry.getClient().getIdClient());
-				throw new NoAuthorizedException(NoAuthorizedOperationsNames.CLIENT_ALREADY_ENTERED,
-						Entry.class.getSimpleName());
+				Entry e = entryDao.findUncompletedEntry(entry.getClient().getIdClient());
+				if (e != null) {
+					// Already entered
+					return e;
+				}
 			} catch (InstanceNotFoundException e) {
 				// Entry ok
 			}
 		}
 		try {
-			entryDao.find(entry.getIdEntry());
-			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
+			Entry e = entryDao.find(entry.getIdEntry());
+			throw new DuplicateInstanceException(e.getIdEntry(), Entry.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			entryDao.save(entry);
 			Shop shop = entry.getShop();
@@ -191,17 +199,19 @@ public class ShopServiceImp implements ShopService {
 		// check if client already entered
 		if (entry.getClient() != null) {
 			try {
-				entryDao.findUncompletedEntry(entry.getClient().getIdClient());
-				throw new NoAuthorizedException(NoAuthorizedOperationsNames.CLIENT_ALREADY_ENTERED,
-						Entry.class.getSimpleName());
+				Entry e = entryDao.findUncompletedEntry(entry.getClient().getIdClient());
+				if (e != null) {
+					// Already entered
+					return e;
+				}
 			} catch (InstanceNotFoundException e) {
 				// Entry ok
 			}
 		}
 
 		try {
-			entryDao.find(entry.getIdEntry());
-			throw new DuplicateInstanceException(entry.getIdEntry(), Entry.class.getSimpleName());
+			Entry e = entryDao.find(entry.getIdEntry());
+			throw new DuplicateInstanceException(e.getIdEntry(), Entry.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
 			entryDao.save(entry);
 			reservation.setState(ReservationState.COMPLETED);
@@ -241,6 +251,7 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Entry> getEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo) {
 		return entryDao.findEntriesClientBetweenDates(idClient, dateFrom, dateTo);
 	}

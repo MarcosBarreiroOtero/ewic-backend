@@ -185,7 +185,6 @@ public class ReservationServiceImp implements ReservationService {
 	public Reservation getCloseReservationByClient(Calendar now, int idClient) {
 
 		List<Reservation> reservations = reservationDao.getActiveAndWaitingReservationsByClientAndDay(now, idClient);
-		System.out.println(reservations.size());
 		Reservation waitingRsv = reservations.stream().filter(r -> r.getState() == ReservationState.WAITING).findFirst()
 				.orElse(null);
 		if (waitingRsv != null) {
