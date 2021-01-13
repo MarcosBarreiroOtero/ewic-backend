@@ -12,7 +12,7 @@ public interface ReservationDao extends GenericDao<Reservation, Integer> {
 
 	List<Reservation> findAllByShopId(int idShop);
 
-	Reservation findByDateShopAndClient(Calendar date, int idShop, int idClient) throws InstanceNotFoundException;
+	Reservation findByDateClient(Calendar date, int idClient) throws InstanceNotFoundException;
 
 	List<Reservation> getFutureActiveReservations(Calendar date);
 
