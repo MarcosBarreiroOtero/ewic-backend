@@ -6,29 +6,37 @@ import es.ewic.backend.modelutil.DateUtils;
 
 public class ReservationDetails {
 
-	public int idReservation;
-	public String date;
-	public ReservationState state;
-	public String remarks;
-	public String idGoogleLoginClient;
-	public int idShop;
+	private int idReservation;
+	private String date;
+	private ReservationState state;
+	private String remarks;
+	private int nClients;
+	private String idGoogleLoginClient;
+	private int idShop;
+	private String shopName;
 
-	public ReservationDetails(String date, ReservationState state, String remarks, String idGoogleLoginClient,
-			int idShop) {
+	public ReservationDetails(String date, String remarks, int nClients, String idGoogleLoginClient, int idShop) {
 		this.date = date;
-		this.state = state;
+		this.state = ReservationState.ACTIVE;
 		this.remarks = remarks;
+		this.nClients = nClients == 0 ? 1 : nClients;
 		this.idGoogleLoginClient = idGoogleLoginClient;
 		this.idShop = idShop;
 	}
 
 	public ReservationDetails(Reservation reservation) {
 		this.idReservation = reservation.getIdReservation();
-		this.date = DateUtils.sdfLong.format(reservation.getDate().getTime());
+		this.date = DateUtils.formatDateLong(reservation.getDate());
 		this.state = reservation.getState();
 		this.remarks = reservation.getRemarks();
+		this.nClients = reservation.getnClients();
 		this.idGoogleLoginClient = reservation.getClient().getIdGoogleLogin();
 		this.idShop = reservation.getShop().getIdShop();
+		this.shopName = reservation.getShop().getName();
+	}
+
+	public int getIdReservation() {
+		return idReservation;
 	}
 
 	public String getDate() {
@@ -43,6 +51,10 @@ public class ReservationDetails {
 		return remarks;
 	}
 
+	public int getnClients() {
+		return nClients;
+	}
+
 	public String getIdGoogleLoginClient() {
 		return idGoogleLoginClient;
 	}
@@ -54,4 +66,9 @@ public class ReservationDetails {
 	public int getIdShop() {
 		return idShop;
 	}
+
+	public String getShopName() {
+		return shopName;
+	}
+
 }

@@ -39,14 +39,13 @@ public class DataBaseConfiguration {
 
 	@Bean
 	public DataSource lazyDataSource() {
-		LazyConnectionDataSourceProxy dataSource = new LazyConnectionDataSourceProxy(dataSource());
-		return dataSource;
+		return new LazyConnectionDataSourceProxy(dataSource());
 	}
 
 	public Properties hibernateProperties() {
 		Properties properties = new Properties();
 		properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-		properties.put("hibernate.show_sql", "yes");
+		properties.put("hibernate.show_sql", "false");
 		properties.put("format_sql", "true");
 		properties.put("use_sql_comments", "true");
 

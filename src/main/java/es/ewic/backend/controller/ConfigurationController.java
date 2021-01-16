@@ -1,6 +1,5 @@
 package es.ewic.backend.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import es.ewic.backend.model.controlParameter.ControlParameter;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.service.configurationService.ConfigurationService;
@@ -30,22 +28,12 @@ public class ConfigurationController {
 	@Autowired
 	private ShopService shopService;
 
-	private List<ControlParameterDetails> controlParametersToControlParameterDetails(
-			List<ControlParameter> controlParameters) {
-		List<ControlParameterDetails> controlParameterDetails = new ArrayList<ControlParameterDetails>();
-		for (ControlParameter controlParameter : controlParameters) {
-			controlParameterDetails
-					.add(new ControlParameterDetails(controlParameter.getName(), controlParameter.getValue()));
-		}
-		return controlParameterDetails;
-	}
-
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ControlParameterDetails> getShopConfiguration(@PathVariable("id") int idShop) {
 
 		try {
 			Shop shop = shopService.getShopById(idShop);
-			return controlParametersToControlParameterDetails(
+			return TransformationUtils.controlParametersToControlParameterDetails(
 					configurationService.getAllControlParametersOfShop(shop.getIdShop()));
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

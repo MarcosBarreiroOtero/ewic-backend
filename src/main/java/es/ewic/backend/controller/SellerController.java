@@ -42,7 +42,6 @@ public class SellerController {
 
 	@GetMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SellerDetails loginSeller(@RequestParam String loginName, @RequestParam String password) {
-
 		try {
 			return new SellerDetails(sellerService.login(loginName, password));
 		} catch (InstanceNotFoundException e) {
@@ -92,7 +91,7 @@ public class SellerController {
 			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
 				sellerService.deleteSeller(idSeller);
 			} else {
-				throw new InstanceNotFoundException(idSeller, SellerController.class.getSimpleName());
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
 			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

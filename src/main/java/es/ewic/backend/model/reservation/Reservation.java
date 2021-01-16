@@ -22,7 +22,7 @@ public class Reservation implements Serializable {
 	private static final long serialVersionUID = -2479774326179655209L;
 
 	public enum ReservationState {
-		ACTIVE(1), COMPLETED(2), CANCELLED(3);
+		ACTIVE(0), WAITING(1), COMPLETED(2), NOT_APPEAR(3), CANCELLED(4);
 
 		private int numVal;
 
@@ -39,6 +39,7 @@ public class Reservation implements Serializable {
 	private Calendar date;
 	private ReservationState state;
 	private String remarks;
+	private int nClients;
 
 	private Client client;
 	private Shop shop;
@@ -47,10 +48,11 @@ public class Reservation implements Serializable {
 		// empty constructor
 	}
 
-	public Reservation(Calendar date, ReservationState state, String remarks, Client client, Shop shop) {
+	public Reservation(Calendar date, ReservationState state, String remarks, int nClients, Client client, Shop shop) {
 		this.date = date;
 		this.state = state;
 		this.remarks = remarks;
+		this.nClients = nClients;
 		this.client = client;
 		this.shop = shop;
 	}
@@ -80,6 +82,14 @@ public class Reservation implements Serializable {
 
 	public void setState(ReservationState state) {
 		this.state = state;
+	}
+
+	public int getnClients() {
+		return nClients;
+	}
+
+	public void setnClients(int nClients) {
+		this.nClients = nClients;
 	}
 
 	public String getRemarks() {

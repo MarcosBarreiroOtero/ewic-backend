@@ -1,5 +1,8 @@
 package es.ewic.backend.model.shop;
 
+import java.util.List;
+
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import es.ewic.backend.model.shop.Shop.ShopType;
@@ -17,6 +20,37 @@ public class ShopDaoHibernate extends GenericDaoHibernate<Shop, Integer> impleme
 				.setParameter("idShop", idShop).setMaxResults(1).uniqueResult();
 
 		return shop != null;
+	}
+
+	@Override
+	public List<Shop> getShopsByFilters(String name, ShopType type) {
+
+		String where = "";
+		if (name != null) {
+			where = (where.isEmpty() ? " WHERE " : " AND ") + " s.name = :name ";
+		}
+
+		if (type != null) {
+			where += (where.isEmpty() ? " WHERE " : " AND ") + " s.type = :type ";
+		}
+
+		Query<Shop> q = getSession().createQuery("SELECT s FROM Shop s " + where, Shop.class);
+
+		if (name != null) {
+			q.setParameter("name", name);
+		}
+
+		if (type != null) {
+			q.setParameter("type", type);
+		}
+
+		return q.list();
+	}
+
+	@Override
+	public List<Shop> getShopsByIdSeller(int idSeller) {
+		return getSession().createQuery("SELECT s FROM Shop s WHERE s.seller.idSeller = :idSeller", Shop.class)
+				.setParameter("idSeller", idSeller).list();
 	}
 
 }

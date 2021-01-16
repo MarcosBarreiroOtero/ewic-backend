@@ -19,7 +19,8 @@ public class Shop implements Serializable {
 	private static final long serialVersionUID = -6896714588922492560L;
 
 	public enum ShopType {
-		OTHER(1), FRUIT_STORE(2);
+		OTHER(0), SUPERMARKET(1), PHARMACY(2), FRUIT_STORE(3), RESTAURANT(4), BAR(5), BOOK_STORE(6), HAIRDRESSER(7),
+		HARDWARE_STORE(8), BUTCHER_SHOP(9), FISH_SHOP(10), BAKERY(11);
 
 		private int numVal;
 
@@ -34,8 +35,14 @@ public class Shop implements Serializable {
 
 	private int idShop;
 	private String name;
+	private float latitude;
+	private float longitude;
 	private String location;
+	private int maxCapacity;
+	private int actualCapacity;
+	private boolean allowEntries;
 	private ShopType type;
+	private String timetable;
 
 	private Seller seller;
 
@@ -43,17 +50,30 @@ public class Shop implements Serializable {
 		// empty constructor
 	}
 
-	public Shop(String name, String location, ShopType type, Seller seller) {
+	public Shop(String name, float latitude, float longitude, String location, int maxCapacity, ShopType type,
+			String timetable, Seller seller) {
 		this.name = name;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.location = location;
+		this.maxCapacity = maxCapacity;
+		this.actualCapacity = 0;
+		this.allowEntries = false;
 		this.type = type;
+		this.timetable = timetable;
 		this.seller = seller;
 	}
 
 	public Shop(ShopDetails details, Seller seller) {
 		this.name = details.getName();
+		this.longitude = details.getLongitude();
+		this.latitude = details.getLatitude();
 		this.location = details.getLocation();
+		this.maxCapacity = details.getMaxCapacity();
+		this.actualCapacity = 0;
+		this.allowEntries = false;
 		this.type = details.getType();
+		this.timetable = details.getTimetable();
 		this.seller = seller;
 	}
 
@@ -75,6 +95,22 @@ public class Shop implements Serializable {
 		this.name = name;
 	}
 
+	public float getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+
+	public float getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
+	}
+
 	public String getLocation() {
 		return location;
 	}
@@ -83,12 +119,44 @@ public class Shop implements Serializable {
 		this.location = location;
 	}
 
+	public int getMaxCapacity() {
+		return maxCapacity;
+	}
+
+	public void setMaxCapacity(int maxCapacity) {
+		this.maxCapacity = maxCapacity;
+	}
+
+	public int getActualCapacity() {
+		return actualCapacity;
+	}
+
+	public void setActualCapacity(int actualCapacity) {
+		this.actualCapacity = actualCapacity;
+	}
+
+	public boolean isAllowEntries() {
+		return allowEntries;
+	}
+
+	public void setAllowEntries(boolean allowEntries) {
+		this.allowEntries = allowEntries;
+	}
+
 	public ShopType getType() {
 		return type;
 	}
 
 	public void setType(ShopType type) {
 		this.type = type;
+	}
+
+	public String getTimetable() {
+		return timetable;
+	}
+
+	public void setTimetable(String timetable) {
+		this.timetable = timetable;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

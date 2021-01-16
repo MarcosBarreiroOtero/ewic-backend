@@ -13,6 +13,8 @@ public interface SellerService {
 
 	Seller getSellerById(int idSeller) throws InstanceNotFoundException;
 
+	Seller getSellerByLoginName(String loginName) throws InstanceNotFoundException;
+
 	Seller saveOrUpdateSeller(Seller seller) throws DuplicateInstanceException;
 
 	Seller login(String loginName, String password) throws InstanceNotFoundException, IncorrectPasswordException;
