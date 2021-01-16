@@ -58,9 +58,14 @@ public class ReservationServiceImp implements ReservationService {
 						Reservation.class.getSimpleName());
 			}
 
+			if (reservation.getnClients() != rsv.getnClients()) {
+				checkShopFull(reservation.getShop(), reservation.getDate(), reservation.getnClients(),
+						reservation.getIdReservation());
+			}
 			if (!DateUtils.compareDaysByGet(rsv.getDate(), reservation.getDate())) {
+				checkShopFull(reservation.getShop(), reservation.getDate(), reservation.getnClients(),
+						reservation.getIdReservation());
 				checkReservationDuplicate(reservation);
-				checkShopFull(reservation.getShop(), reservation.getDate());
 			}
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
@@ -69,11 +74,12 @@ public class ReservationServiceImp implements ReservationService {
 
 			rsv.setDate(reservation.getDate());
 			rsv.setRemarks(reservation.getRemarks());
+			rsv.setnClients(reservation.getnClients());
 			return rsv;
 
 		} catch (InstanceNotFoundException e) {
 			checkReservationDuplicate(reservation);
-			checkShopFull(reservation.getShop(), reservation.getDate());
+			checkShopFull(reservation.getShop(), reservation.getDate(), reservation.getnClients(), 0);
 			if (now.after(reservation.getDate())) {
 				throw new NoAuthorizedException(NoAuthorizedOperationsNames.MOVE_RESERVATION_TO_PAST,
 						Reservation.class.getSimpleName());
@@ -85,8 +91,7 @@ public class ReservationServiceImp implements ReservationService {
 
 	private void checkReservationDuplicate(Reservation rsv) throws DuplicateInstanceException {
 		try {
-			reservationDao.findByDateShopAndClient(rsv.getDate(), rsv.getShop().getIdShop(),
-					rsv.getClient().getIdClient());
+			reservationDao.findByDateClient(rsv.getDate(), rsv.getClient().getIdClient());
 			throw new DuplicateInstanceException(DateUtils.formatDateLong(rsv.getDate()),
 					Reservation.class.getSimpleName());
 		} catch (InstanceNotFoundException e) {
@@ -94,9 +99,15 @@ public class ReservationServiceImp implements ReservationService {
 		}
 	}
 
-	private void checkShopFull(Shop shop, Calendar date) throws NoAuthorizedException {
+	private void checkShopFull(Shop shop, Calendar date, int nClients, int idReservation) throws NoAuthorizedException {
 		List<Reservation> reservations = reservationDao.getReservationsByShopAndDate(date, shop.getIdShop());
-		if (reservations.size() >= shop.getMaxCapacity()) {
+		int totalClients = nClients;
+		for (Reservation reservation : reservations) {
+			if (reservation.getIdReservation() != idReservation) {
+				totalClients += reservation.getnClients();
+			}
+		}
+		if (totalClients > shop.getMaxCapacity()) {
 			throw new NoAuthorizedException(NoAuthorizedOperationsNames.RESERVATION_WHEN_SHOP_FULL,
 					Reservation.class.getSimpleName());
 		}
@@ -185,7 +196,6 @@ public class ReservationServiceImp implements ReservationService {
 	public Reservation getCloseReservationByClient(Calendar now, int idClient) {
 
 		List<Reservation> reservations = reservationDao.getActiveAndWaitingReservationsByClientAndDay(now, idClient);
-		System.out.println(reservations.size());
 		Reservation waitingRsv = reservations.stream().filter(r -> r.getState() == ReservationState.WAITING).findFirst()
 				.orElse(null);
 		if (waitingRsv != null) {

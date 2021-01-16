@@ -28,16 +28,15 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 	}
 
 	@Override
-	public Reservation findByDateShopAndClient(Calendar date, int idShop, int idClient)
-			throws InstanceNotFoundException {
+	public Reservation findByDateClient(Calendar date, int idClient) throws InstanceNotFoundException {
 		if (date == null) {
 			throw new InstanceNotFoundException("Date null", Reservation.class.getSimpleName());
 		}
 
 		Reservation rsv = getSession().createQuery(
-				"SELECT r FROM Reservation r WHERE r.shop.idShop = :idShop AND r.client.idClient = :idClient AND TIMESTAMP(r.date) = TIMESTAMP(:date)",
-				Reservation.class).setParameter("idShop", idShop).setParameter("idClient", idClient)
-				.setParameter("date", date).setMaxResults(1).uniqueResult();
+				"SELECT r FROM Reservation r WHERE r.client.idClient = :idClient AND TIMESTAMP(r.date) = TIMESTAMP(:date)",
+				Reservation.class).setParameter("idClient", idClient).setParameter("date", date).setMaxResults(1)
+				.uniqueResult();
 
 		if (rsv == null) {
 			throw new InstanceNotFoundException(DateUtils.formatDateLong(date), Reservation.class.getSimpleName());

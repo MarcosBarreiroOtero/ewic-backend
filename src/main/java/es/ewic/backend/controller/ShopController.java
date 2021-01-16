@@ -125,6 +125,16 @@ public class ShopController {
 
 	}
 
+	@GetMapping(path = "/seller/{idSeller}")
+	public List<ShopDetails> getShopsOfSeller(@PathVariable("idSeller") int idSeller) {
+		try {
+			Seller seller = sellerService.getSellerById(idSeller);
+			return TransformationUtils.shopsToShopDetails(shopService.getShopsByIdSeller(seller.getIdSeller()));
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@PutMapping(path = "/{id}/open")
 	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {
@@ -146,7 +156,6 @@ public class ShopController {
 	// ENTRIES
 	@PostMapping(path = "/{id}/entry")
 	public int registerEntry(@PathVariable("id") int idShop, @RequestParam(required = false) String idGoogleLogin) {
-
 		try {
 			Shop shop = shopService.getShopById(idShop);
 			Client client = null;
@@ -167,7 +176,13 @@ public class ShopController {
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (DuplicateInstanceException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+			int idEntry = (int) e.getKey();
+			try {
+				Entry entry = shopService.getEntryById(idEntry);
+				return entry.getIdEntry();
+			} catch (InstanceNotFoundException e1) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+			}
 		} catch (NoAuthorizedException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
 		} catch (MaxCapacityException e) {

@@ -60,7 +60,7 @@ public class ReservationController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_DATE);
 		}
 		Reservation rsv = new Reservation(rsvDate, reservationDetails.getState(), reservationDetails.getRemarks(),
-				client, shop);
+				reservationDetails.getnClients(), client, shop);
 		return reservationService.saveOrUpdateReservation(rsv);
 	}
 
@@ -78,6 +78,7 @@ public class ReservationController {
 			}
 			reservation.setDate(rsvDate);
 			reservation.setRemarks(reservationDetails.getRemarks());
+			reservation.setnClients(reservationDetails.getnClients());
 
 			reservationService.saveOrUpdateReservation(reservation);
 			return reservation;
