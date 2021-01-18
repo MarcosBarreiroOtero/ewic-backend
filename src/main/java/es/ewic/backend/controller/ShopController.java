@@ -101,8 +101,9 @@ public class ShopController {
 	}
 
 	@GetMapping(path = "/names", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<ShopName> getShopNames() {
-		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(null, null, null, null));
+	public List<ShopName> getShopNames(@RequestParam(required = false) String name,
+			@RequestParam(required = false) ShopType shopType) {
+		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(name, shopType, null, null));
 	}
 
 	@GetMapping(path = "/timetable/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
