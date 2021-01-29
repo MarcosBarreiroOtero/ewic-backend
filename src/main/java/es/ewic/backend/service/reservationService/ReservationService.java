@@ -23,4 +23,6 @@ public interface ReservationService {
 
 	Reservation getCloseReservationByClient(Calendar now, int idClient);
 
+	List<Reservation> getFutureReservations(Calendar now, int idShop);
+
 }

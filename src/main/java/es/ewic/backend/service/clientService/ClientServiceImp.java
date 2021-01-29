@@ -1,5 +1,7 @@
 package es.ewic.backend.service.clientService;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,12 @@ public class ClientServiceImp implements ClientService {
 	@Transactional(readOnly = true)
 	public Client getClientByIdGoogleLogin(String idGoogleLogin) throws InstanceNotFoundException {
 		return clientDao.findClientByIdGoogleLogin(idGoogleLogin);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Client> getClients() {
+		return clientDao.getAll();
 	}
 
 	@Override

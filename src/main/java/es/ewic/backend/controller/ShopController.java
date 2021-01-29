@@ -95,6 +95,15 @@ public class ShopController {
 
 	}
 
+	@GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ShopDetails getShopById(@PathVariable("id") int idShop) {
+		try {
+			return new ShopDetails(shopService.getShopById(idShop));
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopType[] getShopTypes() {
 		return ShopType.values();

@@ -77,6 +77,11 @@ public class ClientController {
 		}
 	}
 
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Client> getClientEntries() {
+		return clientService.getClients();
+	}
+
 	@GetMapping(path = "/{id}/entries", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<EntryDetails> getClientEntries(@PathVariable("id") String idGoogleLogin,
 			@RequestParam(required = true, name = "dateFrom") String dateFrom,
