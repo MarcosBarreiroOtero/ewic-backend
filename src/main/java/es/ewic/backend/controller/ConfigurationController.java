@@ -40,6 +40,17 @@ public class ConfigurationController {
 		}
 	}
 
+	@GetMapping(path = "reservation", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ControlParameterDetails> getReservationParameters(@PathVariable("id") int idShop) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			return TransformationUtils.controlParametersToControlParameterDetails(
+					configurationService.getReservationParametersOfShop(shop.getIdShop()));
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ControlParameterDetails updateShopParameter(@PathVariable("id") int idShop,
 			@RequestBody ControlParameterDetails controlParameterDetails) {
@@ -69,4 +80,5 @@ public class ConfigurationController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
+
 }

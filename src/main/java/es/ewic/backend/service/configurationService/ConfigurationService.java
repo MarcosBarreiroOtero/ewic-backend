@@ -10,6 +10,8 @@ public interface ConfigurationService {
 
 	List<ControlParameter> getAllControlParametersOfShop(int idShop);
 
+	List<ControlParameter> getReservationParametersOfShop(int idShop);
+
 	void setControlParameter(Shop shop, String name, String value);
 
 	String readControlParameterByNameAndShop(String name, int idShop);
