@@ -28,6 +28,7 @@ import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
+import es.ewic.backend.service.configurationService.ConfigurationService;
 import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.EntryDetails;
@@ -47,6 +48,8 @@ public class ShopController {
 	private ClientService clientService;
 	@Autowired
 	private ReservationService reservationService;
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopDetails registerShop(@RequestBody ShopDetails shopDetails) {
@@ -112,7 +115,8 @@ public class ShopController {
 	@GetMapping(path = "/names", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ShopName> getShopNames(@RequestParam(required = false) String name,
 			@RequestParam(required = false) ShopType shopType) {
-		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(name, shopType, null, null));
+		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(name, shopType, null, null),
+				configurationService);
 	}
 
 	@GetMapping(path = "/timetable/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
