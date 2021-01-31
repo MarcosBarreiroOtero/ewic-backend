@@ -251,4 +251,22 @@ public class ReservationController {
 		}
 
 	}
+
+	@GetMapping(path = "seller/{idShop}/dailyReservations", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ReservationDetails> getDailyReservations(@PathVariable("idShop") int idShop,
+			@RequestParam(required = true, name = "date") String date) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+
+			Calendar day = DateUtils.parseDateDate(date);
+			if (day == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+			}
+
+			List<Reservation> reservations = reservationService.getDailyReservations(day, shop.getIdShop());
+			return TransformationUtils.reservationsToReservationsDetails(reservations);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
 }

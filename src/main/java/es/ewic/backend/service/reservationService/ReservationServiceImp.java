@@ -220,4 +220,10 @@ public class ReservationServiceImp implements ReservationService {
 		return reservationDao.getFutureReservationsByShop(now, idShop);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<Reservation> getDailyReservations(Calendar date, int idShop) {
+		return reservationDao.getDailyReservations(date, idShop);
+	}
+
 }

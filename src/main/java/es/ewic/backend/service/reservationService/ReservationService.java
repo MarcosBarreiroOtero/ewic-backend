@@ -25,4 +25,6 @@ public interface ReservationService {
 
 	List<Reservation> getFutureReservations(Calendar now, int idShop);
 
+	List<Reservation> getDailyReservations(Calendar date, int idShop);
+
 }
