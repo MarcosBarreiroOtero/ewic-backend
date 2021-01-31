@@ -146,6 +146,16 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
+	public void deleteShop(int idShop) {
+		try {
+			shopDao.remove(idShop);
+		} catch (InstanceNotFoundException e) {
+			// already deleted
+		}
+
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public Entry getEntryById(int idEntry) throws InstanceNotFoundException {
 		return entryDao.find(idEntry);

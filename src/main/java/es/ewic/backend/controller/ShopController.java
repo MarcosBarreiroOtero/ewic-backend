@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import es.ewic.backend.model.seller.Seller;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.DateUtils;
+import es.ewic.backend.modelutil.PasswordEncrypter.PasswordEncrypter;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
@@ -162,6 +164,23 @@ public class ShopController {
 	public void shopEndCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.endCapacityControl(idShop);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@DeleteMapping(path = "/{id}")
+	public void deleteShop(@PathVariable("id") int idShop, @RequestParam(name = "pwd") String password) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			Seller seller = shop.getSeller();
+
+			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
+				shopService.deleteShop(idShop);
+				System.out.println("delete shop ok");
+			} else {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
+			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

@@ -26,6 +26,8 @@ public interface ShopService {
 
 	void endCapacityControl(int idShop) throws InstanceNotFoundException;
 
+	void deleteShop(int idShop);
+
 	// Entries
 	Entry getEntryById(int idEntry) throws InstanceNotFoundException;
 
