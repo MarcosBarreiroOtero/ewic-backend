@@ -26,6 +26,7 @@ public class Entry implements Serializable {
 	private Calendar start;
 	private Calendar end;
 	private long duration;
+	private String description;
 
 	private Shop shop;
 	private Client client;
@@ -33,8 +34,9 @@ public class Entry implements Serializable {
 	public Entry() {
 	}
 
-	public Entry(Calendar start, Shop shop, Client client) {
+	public Entry(Calendar start, String description, Shop shop, Client client) {
 		this.start = start;
+		this.description = description;
 		this.shop = shop;
 		this.client = client;
 	}
@@ -74,6 +76,14 @@ public class Entry implements Serializable {
 
 	public void setDuration(long duration) {
 		this.duration = duration;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY)

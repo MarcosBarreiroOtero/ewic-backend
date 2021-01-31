@@ -62,4 +62,11 @@ public class EntryDaoHibernate extends GenericDaoHibernate<Entry, Integer> imple
 		return query.list();
 	}
 
+	@Override
+	public List<Entry> findDailyManualEntriesByShop(int idShop, Calendar date) {
+		return getSession().createQuery(
+				"SELECT e FROM Entry e where e.shop.idShop = :idShop AND e.end is NULL AND e.description is NOT NULL",
+				Entry.class).setParameter("idShop", idShop).list();
+	}
+
 }

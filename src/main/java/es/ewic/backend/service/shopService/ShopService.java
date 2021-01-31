@@ -40,4 +40,6 @@ public interface ShopService {
 
 	List<Entry> getEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo);
 
+	List<Entry> getDailyManualEntriesShop(int idShop, Calendar date);
+
 }

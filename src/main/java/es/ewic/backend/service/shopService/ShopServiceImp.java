@@ -256,4 +256,10 @@ public class ShopServiceImp implements ShopService {
 		return entryDao.findEntriesClientBetweenDates(idClient, dateFrom, dateTo);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<Entry> getDailyManualEntriesShop(int idShop, Calendar date) {
+		return entryDao.findDailyManualEntriesByShop(idShop, date);
+	}
+
 }
