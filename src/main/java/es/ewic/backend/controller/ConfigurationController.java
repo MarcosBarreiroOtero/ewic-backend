@@ -119,7 +119,7 @@ public class ConfigurationController {
 		try {
 			Shop shop = shopService.getShopById(idShop);
 			String base64 = "";
-			File image = new File(shop.getIdShop() + ".png");
+			File image = new File(SHOP_IMAGES_FOLDER + shop.getIdShop() + ".png");
 			image.getParentFile().mkdirs();
 			if (image.exists()) {
 				byte[] fileContent = Files.readAllBytes(image.toPath());
