@@ -34,6 +34,8 @@ public class ConfigurationController {
 	@Autowired
 	private ShopService shopService;
 
+	private final String SHOP_IMAGES_FOLDER = "shopImages/";
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ControlParameterDetails> getShopConfiguration(@PathVariable("id") int idShop) {
 
@@ -94,7 +96,8 @@ public class ConfigurationController {
 
 			String base64 = shopImage.getImageBase64();
 
-			File image = new File(shop.getIdShop() + ".png");
+			File image = new File(SHOP_IMAGES_FOLDER + shop.getIdShop() + ".png");
+			image.getParentFile().mkdirs();
 			if (image.exists()) {
 				image.delete();
 			}
@@ -117,12 +120,11 @@ public class ConfigurationController {
 			Shop shop = shopService.getShopById(idShop);
 			String base64 = "";
 			File image = new File(shop.getIdShop() + ".png");
+			image.getParentFile().mkdirs();
 			if (image.exists()) {
-				System.out.println("Existe");
 				byte[] fileContent = Files.readAllBytes(image.toPath());
 				base64 = Base64.getEncoder().encodeToString(fileContent);
 			}
-			System.out.println(base64.length());
 			return base64;
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
