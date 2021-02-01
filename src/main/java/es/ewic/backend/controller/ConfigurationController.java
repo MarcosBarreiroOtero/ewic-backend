@@ -1,5 +1,10 @@
 package es.ewic.backend.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +22,7 @@ import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.service.configurationService.ConfigurationService;
 import es.ewic.backend.service.configurationService.ControlParameterDetails;
+import es.ewic.backend.service.configurationService.ShopImage;
 import es.ewic.backend.service.shopService.ShopService;
 
 @RestController
@@ -78,6 +84,51 @@ public class ConfigurationController {
 			return controlParameterDetailsList;
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PostMapping(path = "image", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public void uploadShopImage(@PathVariable("id") int idShop, @RequestBody ShopImage shopImage) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+
+			String base64 = shopImage.getImageBase64();
+
+			File image = new File(shop.getIdShop() + ".png");
+			if (image.exists()) {
+				image.delete();
+			}
+			image.createNewFile();
+			byte[] decodedBytes = Base64.getDecoder().decode(base64);
+			FileOutputStream fos = new FileOutputStream(image);
+			fos.write(decodedBytes);
+			fos.close();
+			throw new ResponseStatusException(HttpStatus.OK);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (IOException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+
+	@GetMapping(path = "image", produces = MediaType.IMAGE_PNG_VALUE)
+	public String sendShopImage(@PathVariable("id") int idShop) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			String base64 = "";
+			File image = new File(shop.getIdShop() + ".png");
+			if (image.exists()) {
+				System.out.println("Existe");
+				byte[] fileContent = Files.readAllBytes(image.toPath());
+				base64 = Base64.getEncoder().encodeToString(fileContent);
+			}
+			System.out.println(base64.length());
+			return base64;
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 	}
 
