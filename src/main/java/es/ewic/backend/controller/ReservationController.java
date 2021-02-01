@@ -151,6 +151,20 @@ public class ReservationController {
 		}
 	}
 
+	@GetMapping(path = "client/{idGoogleLogin}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ReservationDetails> getClientReservations(@PathVariable("idGoogleLogin") String idGoogleLogin) {
+
+		try {
+			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
+
+			List<Reservation> reservations = reservationService.getReservationsByIdClient(client.getIdClient());
+			return TransformationUtils.reservationsToReservationsDetails(reservations);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+
+	}
+
 	// SELLER ENDPOINTS
 	@PostMapping(path = "/seller", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ReservationDetails addReservationSeller(@RequestBody ReservationDetails reservationDetails) {
@@ -225,17 +239,34 @@ public class ReservationController {
 		}
 	}
 
-	@GetMapping(path = "client/{idGoogleLogin}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<ReservationDetails> getClientReservations(@PathVariable("idGoogleLogin") String idGoogleLogin) {
-
+	@GetMapping(path = "seller/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ReservationDetails> getFutureShopReservations(@PathVariable("idShop") int idShop) {
 		try {
-			Client client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
-
-			List<Reservation> reservations = reservationService.getReservationsByIdClient(client.getIdClient());
+			Shop shop = shopService.getShopById(idShop);
+			Calendar now = Calendar.getInstance();
+			List<Reservation> reservations = reservationService.getFutureReservations(now, shop.getIdShop());
 			return TransformationUtils.reservationsToReservationsDetails(reservations);
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 
+	}
+
+	@GetMapping(path = "seller/{idShop}/dailyReservations", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<ReservationDetails> getDailyReservations(@PathVariable("idShop") int idShop,
+			@RequestParam(required = true, name = "date") String date) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+
+			Calendar day = DateUtils.parseDateDate(date);
+			if (day == null) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+			}
+
+			List<Reservation> reservations = reservationService.getDailyReservations(day, shop.getIdShop());
+			return TransformationUtils.reservationsToReservationsDetails(reservations);
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 }

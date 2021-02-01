@@ -75,4 +75,21 @@ public class ReservationDaoHibernate extends GenericDaoHibernate<Reservation, In
 				Reservation.class).setParameter("idShop", idShop).setParameter("date", date).list();
 	}
 
+	@Override
+	public List<Reservation> getFutureReservationsByShop(Calendar date, int idShop) {
+		return getSession().createQuery(
+				"SELECT r FROM Reservation r WHERE r.shop.idShop = :idShop AND DATE(r.date) >= DATE(:date) AND (r.state = :active OR r.state = :waiting)",
+				Reservation.class).setParameter("idShop", idShop).setParameter("date", date)
+				.setParameter("active", ReservationState.ACTIVE).setParameter("waiting", ReservationState.WAITING)
+				.list();
+	}
+
+	@Override
+	public List<Reservation> getDailyReservations(Calendar date, int idShop) {
+		return getSession()
+				.createQuery("SELECT r FROM Reservation r WHERE r.shop.idShop = :idShop AND DATE(r.date) = DATE(:date)",
+						Reservation.class)
+				.setParameter("idShop", idShop).setParameter("date", date).list();
+	}
+
 }

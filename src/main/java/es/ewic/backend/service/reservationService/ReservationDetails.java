@@ -14,14 +14,17 @@ public class ReservationDetails {
 	private String idGoogleLoginClient;
 	private int idShop;
 	private String shopName;
+	private String clientName;
 
-	public ReservationDetails(String date, String remarks, int nClients, String idGoogleLoginClient, int idShop) {
+	public ReservationDetails(String date, String remarks, int nClients, String idGoogleLoginClient, int idShop,
+			String clientName) {
 		this.date = date;
 		this.state = ReservationState.ACTIVE;
 		this.remarks = remarks;
 		this.nClients = nClients == 0 ? 1 : nClients;
 		this.idGoogleLoginClient = idGoogleLoginClient;
 		this.idShop = idShop;
+		this.clientName = clientName;
 	}
 
 	public ReservationDetails(Reservation reservation) {
@@ -33,6 +36,7 @@ public class ReservationDetails {
 		this.idGoogleLoginClient = reservation.getClient().getIdGoogleLogin();
 		this.idShop = reservation.getShop().getIdShop();
 		this.shopName = reservation.getShop().getName();
+		this.clientName = reservation.getClient().getFirstName() + " " + reservation.getClient().getLastName();
 	}
 
 	public int getIdReservation() {
@@ -69,6 +73,10 @@ public class ReservationDetails {
 
 	public String getShopName() {
 		return shopName;
+	}
+
+	public String getClientName() {
+		return clientName;
 	}
 
 }

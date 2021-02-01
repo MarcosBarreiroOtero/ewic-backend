@@ -22,4 +22,8 @@ public interface ReservationDao extends GenericDao<Reservation, Integer> {
 
 	List<Reservation> getReservationsByShopAndDate(Calendar date, int idShop);
 
+	List<Reservation> getFutureReservationsByShop(Calendar date, int idShop);
+
+	List<Reservation> getDailyReservations(Calendar date, int idShop);
+
 }
