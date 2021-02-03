@@ -151,6 +151,22 @@ public class ShopController {
 		}
 	}
 
+	@DeleteMapping(path = "/{id}")
+	public void deleteShop(@PathVariable("id") int idShop, @RequestParam(name = "pwd") String password) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			Seller seller = shop.getSeller();
+
+			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
+				shopService.deleteShop(idShop);
+			} else {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
+			}
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@PutMapping(path = "/{id}/open")
 	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {
@@ -164,23 +180,6 @@ public class ShopController {
 	public void shopEndCapacityControl(@PathVariable("id") int idShop) {
 		try {
 			shopService.endCapacityControl(idShop);
-		} catch (InstanceNotFoundException e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-		}
-	}
-
-	@DeleteMapping(path = "/{id}")
-	public void deleteShop(@PathVariable("id") int idShop, @RequestParam(name = "pwd") String password) {
-		try {
-			Shop shop = shopService.getShopById(idShop);
-			Seller seller = shop.getSeller();
-
-			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
-				shopService.deleteShop(idShop);
-				System.out.println("delete shop ok");
-			} else {
-				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
-			}
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

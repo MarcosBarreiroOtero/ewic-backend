@@ -248,7 +248,7 @@ public class ShopServiceImp implements ShopService {
 		endEntry(e);
 
 		Shop shop = e.getShop();
-		shop.setActualCapacity(shop.getActualCapacity() - 1);
+		shop.setActualCapacity(Math.max(shop.getActualCapacity() - 1, 0));
 		shopDao.save(shop);
 
 		return e;
