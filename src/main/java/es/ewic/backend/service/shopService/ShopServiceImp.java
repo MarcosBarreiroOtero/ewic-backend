@@ -146,6 +146,16 @@ public class ShopServiceImp implements ShopService {
 	}
 
 	@Override
+	public void deleteShop(int idShop) {
+		try {
+			shopDao.remove(idShop);
+		} catch (InstanceNotFoundException e) {
+			// already deleted
+		}
+
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public Entry getEntryById(int idEntry) throws InstanceNotFoundException {
 		return entryDao.find(idEntry);
@@ -238,7 +248,7 @@ public class ShopServiceImp implements ShopService {
 		endEntry(e);
 
 		Shop shop = e.getShop();
-		shop.setActualCapacity(shop.getActualCapacity() - 1);
+		shop.setActualCapacity(Math.max(shop.getActualCapacity() - 1, 0));
 		shopDao.save(shop);
 
 		return e;
@@ -254,6 +264,12 @@ public class ShopServiceImp implements ShopService {
 	@Transactional(readOnly = true)
 	public List<Entry> getEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo) {
 		return entryDao.findEntriesClientBetweenDates(idClient, dateFrom, dateTo);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Entry> getDailyManualEntriesShop(int idShop, Calendar date) {
+		return entryDao.findDailyManualEntriesByShop(idShop, date);
 	}
 
 }

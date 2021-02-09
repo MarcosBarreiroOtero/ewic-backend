@@ -188,7 +188,7 @@ public class ReservationServiceImp implements ReservationService {
 					reduceActualCapacity++;
 				}
 			}
-			shop.setActualCapacity(shop.getActualCapacity() - reduceActualCapacity);
+			shop.setActualCapacity(Math.max(shop.getActualCapacity() - reduceActualCapacity, 0));
 		}
 	}
 
@@ -212,6 +212,18 @@ public class ReservationServiceImp implements ReservationService {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Reservation> getFutureReservations(Calendar now, int idShop) {
+		return reservationDao.getFutureReservationsByShop(now, idShop);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Reservation> getDailyReservations(Calendar date, int idShop) {
+		return reservationDao.getDailyReservations(date, idShop);
 	}
 
 }

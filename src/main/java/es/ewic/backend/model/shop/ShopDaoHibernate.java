@@ -27,7 +27,7 @@ public class ShopDaoHibernate extends GenericDaoHibernate<Shop, Integer> impleme
 
 		String where = "";
 		if (name != null) {
-			where = (where.isEmpty() ? " WHERE " : " AND ") + " s.name = :name ";
+			where = (where.isEmpty() ? " WHERE " : " AND ") + " s.name LIKE :name ";
 		}
 
 		if (type != null) {
@@ -37,7 +37,7 @@ public class ShopDaoHibernate extends GenericDaoHibernate<Shop, Integer> impleme
 		Query<Shop> q = getSession().createQuery("SELECT s FROM Shop s " + where, Shop.class);
 
 		if (name != null) {
-			q.setParameter("name", name);
+			q.setParameter("name", "%" + name + "%");
 		}
 
 		if (type != null) {

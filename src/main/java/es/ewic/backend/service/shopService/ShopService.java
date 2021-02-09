@@ -26,6 +26,8 @@ public interface ShopService {
 
 	void endCapacityControl(int idShop) throws InstanceNotFoundException;
 
+	void deleteShop(int idShop);
+
 	// Entries
 	Entry getEntryById(int idEntry) throws InstanceNotFoundException;
 
@@ -39,5 +41,7 @@ public interface ShopService {
 	List<Entry> getDailyEntriesShop(int idShop, Calendar date);
 
 	List<Entry> getEntriesClientBetweenDates(int idClient, Calendar dateFrom, Calendar dateTo);
+
+	List<Entry> getDailyManualEntriesShop(int idShop, Calendar date);
 
 }

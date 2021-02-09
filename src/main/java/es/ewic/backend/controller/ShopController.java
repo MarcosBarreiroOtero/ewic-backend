@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,11 +24,13 @@ import es.ewic.backend.model.seller.Seller;
 import es.ewic.backend.model.shop.Shop;
 import es.ewic.backend.model.shop.Shop.ShopType;
 import es.ewic.backend.modelutil.DateUtils;
+import es.ewic.backend.modelutil.PasswordEncrypter.PasswordEncrypter;
 import es.ewic.backend.modelutil.exceptions.DuplicateInstanceException;
 import es.ewic.backend.modelutil.exceptions.InstanceNotFoundException;
 import es.ewic.backend.modelutil.exceptions.MaxCapacityException;
 import es.ewic.backend.modelutil.exceptions.NoAuthorizedException;
 import es.ewic.backend.service.clientService.ClientService;
+import es.ewic.backend.service.configurationService.ConfigurationService;
 import es.ewic.backend.service.reservationService.ReservationService;
 import es.ewic.backend.service.sellerService.SellerService;
 import es.ewic.backend.service.shopService.EntryDetails;
@@ -47,6 +50,8 @@ public class ShopController {
 	private ClientService clientService;
 	@Autowired
 	private ReservationService reservationService;
+	@Autowired
+	private ConfigurationService configurationService;
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopDetails registerShop(@RequestBody ShopDetails shopDetails) {
@@ -95,14 +100,25 @@ public class ShopController {
 
 	}
 
+	@GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ShopDetails getShopById(@PathVariable("id") int idShop) {
+		try {
+			return new ShopDetails(shopService.getShopById(idShop));
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@GetMapping(path = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ShopType[] getShopTypes() {
 		return ShopType.values();
 	}
 
 	@GetMapping(path = "/names", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<ShopName> getShopNames() {
-		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(null, null, null, null));
+	public List<ShopName> getShopNames(@RequestParam(required = false) String name,
+			@RequestParam(required = false) ShopType shopType) {
+		return TransformationUtils.shopsToShopName(shopService.getShopsByFilters(name, shopType, null, null),
+				configurationService);
 	}
 
 	@GetMapping(path = "/timetable/{idShop}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,6 +151,22 @@ public class ShopController {
 		}
 	}
 
+	@DeleteMapping(path = "/{id}")
+	public void deleteShop(@PathVariable("id") int idShop, @RequestParam(name = "pwd") String password) {
+		try {
+			Shop shop = shopService.getShopById(idShop);
+			Seller seller = shop.getSeller();
+
+			if (PasswordEncrypter.isClearPasswordCorrect(password, seller.getPassword())) {
+				shopService.deleteShop(idShop);
+			} else {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
+			}
+		} catch (InstanceNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
 	@PutMapping(path = "/{id}/open")
 	public void shopStartCapacityControl(@PathVariable("id") int idShop) {
 		try {
@@ -155,31 +187,39 @@ public class ShopController {
 
 	// ENTRIES
 	@PostMapping(path = "/{id}/entry")
-	public int registerEntry(@PathVariable("id") int idShop, @RequestParam(required = false) String idGoogleLogin) {
+	public String registerEntry(@PathVariable("id") int idShop, @RequestParam(required = false) String idGoogleLogin,
+			@RequestParam(required = false) String description) {
 		try {
 			Shop shop = shopService.getShopById(idShop);
 			Client client = null;
 			if (idGoogleLogin != null) {
 				client = clientService.getClientByIdGoogleLogin(idGoogleLogin);
 			}
+			String entryDescription = null;
+			if (description != null) {
+				entryDescription = description;
+			}
 			Calendar now = Calendar.getInstance();
-			Entry e = new Entry(now, shop, client);
+			Entry e = new Entry(now, entryDescription, shop, client);
 			if (client != null) {
 				Reservation reservation = reservationService.getCloseReservationByClient(now, client.getIdClient());
 				if (reservation != null) {
 					shopService.registerEntryWithReservation(e, reservation);
-					return e.getIdEntry();
+					shop = shopService.getShopById(idShop);
+					return e.getIdEntry() + "@#" + shop.getActualCapacity();
 				}
 			}
 			shopService.registerEntry(e);
-			return e.getIdEntry();
+			shop = shopService.getShopById(idShop);
+			return e.getIdEntry() + "@#" + shop.getActualCapacity();
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (DuplicateInstanceException e) {
 			int idEntry = (int) e.getKey();
 			try {
 				Entry entry = shopService.getEntryById(idEntry);
-				return entry.getIdEntry();
+				Shop shop = shopService.getShopById(idShop);
+				return entry.getIdEntry() + "@#" + shop.getActualCapacity();
 			} catch (InstanceNotFoundException e1) {
 				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 			}
@@ -191,11 +231,13 @@ public class ShopController {
 	}
 
 	@PutMapping(path = "/{id}/exit")
-	public void registerExit(@PathVariable("id") int idShop,
+	public int registerExit(@PathVariable("id") int idShop,
 			@RequestParam(required = true, name = "entryNumber") int idEntry) {
 
 		try {
 			shopService.registerExit(idEntry);
+			Shop shop = shopService.getShopById(idShop);
+			return shop.getActualCapacity();
 		} catch (InstanceNotFoundException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		} catch (NoAuthorizedException e) {
@@ -213,6 +255,20 @@ public class ShopController {
 		}
 
 		List<Entry> entries = shopService.getDailyEntriesShop(idShop, day);
+		return TransformationUtils.entriesToEntryDetails(entries);
+
+	}
+
+	@GetMapping(path = "/{id}/manualEntries")
+	public List<EntryDetails> getManualEntries(@PathVariable("id") int idShop,
+			@RequestParam(required = true, name = "date") String date) {
+
+		Calendar day = DateUtils.parseDateDate(date);
+		if (day == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+		}
+
+		List<Entry> entries = shopService.getDailyManualEntriesShop(idShop, day);
 		return TransformationUtils.entriesToEntryDetails(entries);
 
 	}
