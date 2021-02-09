@@ -78,7 +78,7 @@ public class ClientController {
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Client> getClientEntries() {
+	public List<Client> getClients() {
 		return clientService.getClients();
 	}
 

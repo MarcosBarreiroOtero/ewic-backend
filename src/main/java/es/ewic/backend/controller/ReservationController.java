@@ -260,7 +260,7 @@ public class ReservationController {
 
 			Calendar day = DateUtils.parseDateDate(date);
 			if (day == null) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date");
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_DATE);
 			}
 
 			List<Reservation> reservations = reservationService.getDailyReservations(day, shop.getIdShop());

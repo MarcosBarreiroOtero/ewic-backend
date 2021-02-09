@@ -188,7 +188,7 @@ public class ReservationServiceImp implements ReservationService {
 					reduceActualCapacity++;
 				}
 			}
-			shop.setActualCapacity(shop.getActualCapacity() - reduceActualCapacity);
+			shop.setActualCapacity(Math.max(shop.getActualCapacity() - reduceActualCapacity, 0));
 		}
 	}
 
