@@ -103,10 +103,10 @@ public class DateUtils {
 	public static int compareDays(Calendar date1, Calendar date2) {
 		Calendar date1Aux = new GregorianCalendar();
 		date1Aux.setTime(date1.getTime());
-		date1Aux = setHourMinuteZero(date1Aux);
+		setHourMinuteZero(date1Aux);
 		Calendar date2Aux = new GregorianCalendar();
 		date2Aux.setTime(date2.getTime());
-		date2Aux = setHourMinuteZero(date2Aux);
+		setHourMinuteZero(date2Aux);
 		return date1Aux.compareTo(date2Aux);
 	}
 
