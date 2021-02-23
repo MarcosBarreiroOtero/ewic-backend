@@ -1,6 +1,6 @@
-# Backend EWYC
+# Ewyc backend
 
-Parte backend del sistema ewyc donde se gestionan los datos almacenados en la base de datos para posteriormente ofrecerlos al resto de componentes mediante un API REST.
+API REST del sistema Ewyc destinada a la gestión de la base de datos y comunicación con el resto de componentes. Esta API forma parte del sistema Ewyc "Evolve With Your Capacity": Sistema para el control de aforos del Trabajo Final del Máster en Ingeniería Informática de la Universidad de A Coruña.
 
 ## Requisitos
 
@@ -15,7 +15,7 @@ propiedades.
 ## Modo de uso
 
 1. Descargar el código
-2. Ejecutar el script de creación de la base de datos situado en /doc/initializeDb.sql. Realizar está operación solo la primera vez que se lanza la aplicación ya que eliminar los datos guardados anteriormente.
+2. Ejecutar el script de creación de la base de datos situado en [/doc/initializeDb.sql](doc/initializeDb.sql). Realizar está operación solo la primera vez que se lanza la aplicación ya que eliminar los datos guardados anteriormente.
 
         mysql -uewic -pewic -Dewic < initializeDb.sql
         
@@ -25,4 +25,7 @@ propiedades.
         
  
 También se puede crear un archivo de tipo jar mediante **mvn package** que al ejecutarlo lanza el tomcat de la misma forma que se produce en el paso número 3. 
-El problema desta alternativa es que la forma, a día de hoy, que hay para dejar de exponer la API REST es buscando el pid del proceso que inicia el jar y matandolo.
+
+## Defensa
+
+Para la defensa deste TFM se utilizara lel JAR ([ewyc-backend.jar](ewyc-backend.jar)) ya configurado que se encuentra en el directorio raíz de este proyecto
