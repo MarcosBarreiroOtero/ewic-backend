@@ -9,7 +9,7 @@ public class ShopImage implements Serializable {
 	private String imageBase64;
 
 	public ShopImage() {
-	};
+	}
 
 	public ShopImage(String imageBase64) {
 		this.imageBase64 = imageBase64;

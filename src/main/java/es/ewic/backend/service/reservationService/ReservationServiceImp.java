@@ -199,12 +199,11 @@ public class ReservationServiceImp implements ReservationService {
 		Reservation waitingRsv = reservations.stream().filter(r -> r.getState() == ReservationState.WAITING).findFirst()
 				.orElse(null);
 		if (waitingRsv != null) {
-			System.out.println("Reserva esperando");
+			System.out.println("Reservation waiting");
 			return waitingRsv;
 		} else {
 			for (Reservation reservation : reservations) {
-				System.out.println(
-						"Minutos de diferencia: " + DateUtils.getMinutesDifference(now, reservation.getDate()));
+				System.out.println("Minutes difference: " + DateUtils.getMinutesDifference(now, reservation.getDate()));
 
 				if (DateUtils.getMinutesDifference(now, reservation.getDate()) <= 5) {
 					return reservation;

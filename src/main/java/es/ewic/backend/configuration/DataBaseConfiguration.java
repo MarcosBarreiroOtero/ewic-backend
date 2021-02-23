@@ -49,8 +49,6 @@ public class DataBaseConfiguration {
 		properties.put("format_sql", "true");
 		properties.put("use_sql_comments", "true");
 
-		// TODO revisar. Método para habilitar el tipo de fetch Lazy pero ralentiza la
-		// aplicación
 		properties.put("hibernate.enable_lazy_load_no_trans", "true");
 		return properties;
 	}
