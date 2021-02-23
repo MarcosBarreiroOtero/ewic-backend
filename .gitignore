@@ -66,3 +66,6 @@ mvnw.cmd
 
 images
 images/
+
+#Final jar
+!ewyc-backend.jar

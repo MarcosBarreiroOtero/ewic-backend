@@ -1,6 +1,6 @@
-# Backend EWIC
+# Backend EWYC
 
-Parte backend del sistema ewic donde se gestionan los datos almacenados en la base de datos para posteriormente ofrecerlos al resto de componentes mediante un API REST.
+Parte backend del sistema ewyc donde se gestionan los datos almacenados en la base de datos para posteriormente ofrecerlos al resto de componentes mediante un API REST.
 
 ## Requisitos
 
